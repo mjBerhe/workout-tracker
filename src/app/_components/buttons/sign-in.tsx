@@ -6,7 +6,11 @@ export const SignIn: React.FC<{ signedIn: boolean }> = (props) => {
   const { signedIn } = props;
 
   return (
-    <button onClick={() => (signedIn ? signOut() : signIn("google"))}>
+    <button
+      onClick={() =>
+        signedIn ? signOut() : signIn("google", { callbackUrl: "/home" })
+      }
+    >
       {signedIn ? "Sign Out" : "Sign In with Google"}
     </button>
   );
