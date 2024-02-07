@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
   varchar,
+  serial,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -17,23 +18,8 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = mysqlTableCreator((name) => `workout-tracker_${name}`);
-
-export const posts = createTable(
-  "post",
-  {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
+export const createTable = mysqlTableCreator(
+  (name) => `workout-tracker_${name}`,
 );
 
 export const users = createTable("user", {
@@ -47,9 +33,51 @@ export const users = createTable("user", {
   image: varchar("image", { length: 255 }),
 });
 
+export const workouts = createTable(
+  "workout",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 256 }),
+    userId: varchar("userId", { length: 255 }).notNull(),
+    time: varchar("time", { length: 256 }),
+    type: varchar("type", { length: 256 }),
+    specificName: varchar("specificName", { length: 256 }),
+    duration: varchar("duration", { length: 256 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (example) => ({
+    userIdIdx: index("userId_idx").on(example.userId),
+  }),
+);
+
+// export const posts = createTable(
+//   "post",
+//   {
+//     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+//     name: varchar("name", { length: 256 }),
+//     createdById: varchar("createdById", { length: 255 }).notNull(),
+//     createdAt: timestamp("created_at")
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updatedAt").onUpdateNow(),
+//   },
+//   (example) => ({
+//     createdByIdIdx: index("createdById_idx").on(example.createdById),
+//     nameIndex: index("name_idx").on(example.name),
+//   }),
+// );
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
+  workouts: many(workouts),
+}));
+
+export const workoutRelations = relations(workouts, ({ one }) => ({
+  workout: one(users, { fields: [workouts.userId], references: [users.id] }),
 }));
 
 export const accounts = createTable(
@@ -74,7 +102,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("accounts_userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -92,7 +120,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -108,5 +136,5 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
