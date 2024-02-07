@@ -53,6 +53,9 @@ export const workouts = createTable(
   }),
 );
 
+export type Workout = typeof workouts.$inferSelect;
+export type NewWorkout = typeof workouts.$inferInsert;
+
 // export const posts = createTable(
 //   "post",
 //   {
