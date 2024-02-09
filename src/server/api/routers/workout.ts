@@ -18,9 +18,9 @@ export const workoutRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        name: z.string().optional().nullable(),
-        time: z.string().optional().nullable(),
-        type: z.string().optional().nullable(),
+        name: z.string().optional().nullable(), // Leg Day 1
+        time: z.string().optional().nullable(), // Afternoon
+        type: z.string().optional().nullable(), // Strength Training
         specificName: z.string().optional().nullable(),
         duration: z.string().optional().nullable(),
         notes: z.string().optional().nullable(),

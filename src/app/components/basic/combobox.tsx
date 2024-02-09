@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import fuzzysort from "fuzzysort";
 
 export const ComboBox: React.FC<{
   options: string[];
@@ -12,24 +13,27 @@ export const ComboBox: React.FC<{
 
   const filteredOptions =
     query === ""
-      ? options
-      : options.filter((option) =>
-          option
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, "")),
-        );
+      ? options.slice(0, 100)
+      : fuzzysort.go(query, [...options], { limit: 50 }).map((x) => x.target);
 
   return (
-    <div className="">
+    <div className="w-full">
       <Combobox value={selected} onChange={setSelected}>
-        <div className="relative mt-1">
-          <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
-            <Combobox.Input
-              className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-              // displayValue={(option) => option}
-              onChange={(event) => setQuery(event.target.value)}
-            />
+        <div className="relative">
+          <div className="relative cursor-default overflow-hidden rounded-lg border-none bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+            <Combobox.Button className="w-full">
+              {({ open }) => (
+                <Combobox.Input
+                  className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                  // displayValue={(option) => option}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onClick={(e) => {
+                    if (open) e.stopPropagation();
+                  }}
+                />
+              )}
+            </Combobox.Button>
+
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon
                 className="h-5 w-5 text-gray-400"
