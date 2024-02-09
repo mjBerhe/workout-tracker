@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import { CreateWorkoutButton } from "../_components/buttons/create-workout";
+import { CreateWorkout } from "../components/create-workout";
 import { NewWorkout } from "~/server/db/schema";
 
 export default async function Home() {
@@ -24,9 +24,9 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-800 text-white">
-      <div>we home</div>
-      <div>
-        <CreateWorkoutButton workoutData={workoutData} />
+      <h1 className="text-4xl font-bold">Workout Tracker</h1>
+      <div className="mt-12">
+        <CreateWorkout workoutData={workoutData} />
       </div>
     </main>
   );

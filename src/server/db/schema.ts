@@ -56,6 +56,24 @@ export const workouts = createTable(
 export type Workout = typeof workouts.$inferSelect;
 export type NewWorkout = typeof workouts.$inferInsert;
 
+export const sets = createTable(
+  "sets",
+  {
+    id: serial("id").primaryKey(),
+    workoutId: varchar("workoutId", { length: 256 }),
+    setNumber: int("setNumber"),
+    weightAmount: int("weightAmount"),
+    weightUnit: varchar("weightMeasurement", { length: 256 }),
+    repAmount: int("repAmount"),
+  },
+  (example) => ({
+    workoutIdIdx: index("workoutId_idx").on(example.workoutId),
+  }),
+);
+
+export type Set = typeof sets.$inferSelect;
+export type NewSet = typeof sets.$inferInsert;
+
 // export const posts = createTable(
 //   "post",
 //   {
@@ -81,6 +99,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const workoutRelations = relations(workouts, ({ one }) => ({
   workout: one(users, { fields: [workouts.userId], references: [users.id] }),
+}));
+
+export const setsRelations = relations(sets, ({ one }) => ({
+  set: one(workouts, { fields: [sets.workoutId], references: [workouts.id] }),
 }));
 
 export const accounts = createTable(

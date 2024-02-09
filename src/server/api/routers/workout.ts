@@ -4,9 +4,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { workouts } from "~/server/db/schema";
-
-type Workout = typeof workouts.$inferInsert;
+import { sets, workouts } from "~/server/db/schema";
+import { db } from "~/server/db";
 
 export const workoutRouter = createTRPCRouter({
   getAllWorkouts: protectedProcedure
@@ -15,7 +14,7 @@ export const workoutRouter = createTRPCRouter({
       return "hello";
     }),
 
-  create: protectedProcedure
+  createWorkout: protectedProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -27,10 +26,10 @@ export const workoutRouter = createTRPCRouter({
         notes: z.string().optional().nullable(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const { userId, name, type, time, specificName, duration, notes } = input;
 
-      const newWorkout = await ctx.db.insert(workouts).values({
+      const newWorkout = await db.insert(workouts).values({
         userId,
         name,
         type,
@@ -41,5 +40,30 @@ export const workoutRouter = createTRPCRouter({
       });
 
       return { status: "success", workout: newWorkout };
+    }),
+
+  createSet: protectedProcedure
+    .input(
+      z.object({
+        // userId: z.string(),
+        workoutId: z.string().optional().nullable(),
+        setNumber: z.number().optional().nullable(),
+        weightAmount: z.number().optional().nullable(),
+        weightUnit: z.string().optional().nullable(),
+        repAmount: z.number().optional().nullable(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { workoutId, setNumber, weightAmount, weightUnit, repAmount } =
+        input;
+      const newSet = await db.insert(sets).values({
+        workoutId,
+        setNumber,
+        weightAmount,
+        weightUnit,
+        repAmount,
+      });
+
+      return { status: "success", set: newSet };
     }),
 });

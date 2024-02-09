@@ -1,11 +1,11 @@
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 
-import { CreatePost } from "~/app/_components/create-post";
+import { CreatePost } from "~/app/components/create-post";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { signIn } from "next-auth/react";
-import { SignIn } from "./_components/buttons/sign-in";
+import { SignIn } from "~/app/components/buttons/sign-in";
 
 export default async function Home() {
   const session = await getServerAuthSession();
