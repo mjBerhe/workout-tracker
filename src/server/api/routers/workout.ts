@@ -18,18 +18,31 @@ export const workoutRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        name: z.string().optional().nullable(), // Leg Day 1
-        time: z.string().optional().nullable(), // Afternoon
-        type: z.string().optional().nullable(), // Strength Training
+        name: z.string(), // Leg Day 1
+        time: z.string().optional(), // Afternoon
+        type: z.string().optional(), // Strength Training
+        duration: z.string().optional(),
         specificName: z.string().optional().nullable(),
-        duration: z.string().optional().nullable(),
         notes: z.string().optional().nullable(),
+        date: z.date().optional(),
+        exercises: z.array(
+          z.object({
+            name: z.string().optional().nullable(),
+            sets: z.array(
+              z.object({
+                // id: z.number().optional(),
+                setNumber: z.string(),
+                weightAmount: z.string(),
+                weightUnit: z.string(),
+                repAmount: z.string(),
+              }),
+            ),
+          }),
+        ),
       }),
     )
     .mutation(async ({ input }) => {
-      const { userId, name, type, time, specificName, duration, notes } = input;
-
-      const newWorkout = await db.insert(workouts).values({
+      const {
         userId,
         name,
         type,
@@ -37,9 +50,22 @@ export const workoutRouter = createTRPCRouter({
         specificName,
         duration,
         notes,
-      });
+        exercises,
+      } = input;
 
-      return { status: "success", workout: newWorkout };
+      console.log(input);
+
+      // const newWorkout = await db.insert(workouts).values({
+      //   userId,
+      //   name,
+      //   type,
+      //   time,
+      //   specificName,
+      //   duration,
+      //   notes,
+      // });
+
+      // return { status: "success", workout: newWorkout };
     }),
 
   // createSet: protectedProcedure

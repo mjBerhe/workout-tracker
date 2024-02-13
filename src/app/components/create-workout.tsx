@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { handleCreateWorkout, handleCreateSet } from "~/app/actions";
-import type { NewWorkout } from "~/server/db/schema";
+import { handleCreateWorkout } from "~/app/actions";
+import type { NewWorkout, NewSet } from "~/server/db/schema";
 import { exercises } from "~/const/exercises";
 
 import { Input } from "~/app/components/input";
@@ -49,17 +49,19 @@ type Exercise = {
 
 type Set = {
   id: number;
-  lbs: string;
-  reps: string;
+  setNumber: string;
+  weightAmount: string;
+  weightUnit: string;
+  repAmount: string;
 };
 
-export const CreateWorkout: React.FC = () => {
+export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
   const exerciseOptions = useMemo(
     () => exercises.filter((x) => x.category === "strength").map((x) => x.name),
     [exercises],
   );
 
-  const [name, setName] = useState<string>("");
+  const [workoutName, setWorkoutName] = useState<string>("");
 
   const [timeOfDay, setTimeOfDay] = useState<Option | undefined>(
     timeOfDayOptions[0],
@@ -75,6 +77,8 @@ export const CreateWorkout: React.FC = () => {
 
   const [currentExercise, setCurrentExercise] = useState<boolean>(false);
 
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+
   const handleSetTimeOfDay = (option: Option) => {
     setTimeOfDay(option);
   };
@@ -88,7 +92,22 @@ export const CreateWorkout: React.FC = () => {
   };
 
   const saveExercise = (exercise: Exercise) => {
-    console.log(exercise);
+    setSelectedExercises((prev) => [...prev, exercise]);
+  };
+
+  console.log(selectedExercises);
+
+  const createWorkout = async () => {
+    await handleCreateWorkout(
+      {
+        userId: props.userId,
+        name: workoutName,
+        time: timeOfDay?.name,
+        type: workoutType?.name,
+        duration: duration?.name,
+      },
+      [...selectedExercises],
+    );
   };
 
   return (
@@ -97,8 +116,8 @@ export const CreateWorkout: React.FC = () => {
         <span className="text-sm">Workout Name</span>
         <Input
           placeholder="Workout Name"
-          value={name}
-          onChange={(e) => setName(e.currentTarget.value)}
+          value={workoutName}
+          onChange={(e) => setWorkoutName(e.currentTarget.value)}
           className="text-black"
         />
       </div>
@@ -152,9 +171,7 @@ export const CreateWorkout: React.FC = () => {
         </div>
       </div>
 
-      {/* <button onClick={() => handleCreateWorkout(workoutData)}>
-        Create Workout
-      </button> */}
+      <button onClick={createWorkout}>Create Workout</button>
 
       {/* <button>Create Set</button> */}
     </div>
@@ -170,7 +187,15 @@ export const AddExercise: React.FC<{
   const [selectedExercise, setSelectedExercise] =
     useState<string>("Select an Exercise");
   const [currentSetId, setCurrentSetId] = useState(0);
-  const [setInfo, setSetInfo] = useState<Set[]>([{ id: 0, lbs: "", reps: "" }]);
+  const [setInfo, setSetInfo] = useState<Set[]>([
+    {
+      id: 0,
+      setNumber: "",
+      weightAmount: "",
+      repAmount: "",
+      weightUnit: "lbs",
+    },
+  ]);
 
   const handleSetExercise = (exercise: string) => {
     setSelectedExercise(exercise);
@@ -185,14 +210,23 @@ export const AddExercise: React.FC<{
 
   const handleAddSet = () => {
     const newSetId = currentSetId + 1;
-    setSetInfo((prev) => [...prev, { id: newSetId, lbs: "", reps: "" }]);
+    setSetInfo((prev) => [
+      ...prev,
+      {
+        id: newSetId,
+        setNumber: "",
+        weightAmount: "",
+        repAmount: "",
+        weightUnit: "lbs",
+      },
+    ]);
     setCurrentSetId(newSetId);
   };
 
   const handleSaveExercise = () => {
-    const exercise: Exercise = {
+    const exercise = {
       name: selectedExercise,
-      sets: setInfo,
+      sets: [...setInfo.map((set, i) => ({ ...set, setNumber: i.toString() }))],
     };
     saveExercise(exercise);
   };
@@ -222,9 +256,13 @@ export const AddExercise: React.FC<{
               <Input
                 type="number"
                 className="h-[30px] w-[100px] text-black"
-                value={setInfo.find((x) => x.id === set.id)?.lbs}
+                value={setInfo.find((x) => x.id === set.id)?.weightAmount}
                 onChange={(val) =>
-                  handleChangeSet(set.id, "lbs", val.currentTarget.value)
+                  handleChangeSet(
+                    set.id,
+                    "weightAmount",
+                    val.currentTarget.value,
+                  )
                 }
               />
             </div>
@@ -233,7 +271,7 @@ export const AddExercise: React.FC<{
                 type="number"
                 className="h-[30px] w-[100px] text-black"
                 onChange={(val) =>
-                  handleChangeSet(set.id, "reps", val.currentTarget.value)
+                  handleChangeSet(set.id, "repAmount", val.currentTarget.value)
                 }
               />
             </div>
