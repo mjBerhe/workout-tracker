@@ -43,19 +43,23 @@ type Exercise = {
   // instructions: string;
   // category: string;
   // images: string[];
-  id: string | number;
+  // id: string | number;
+  sets: Set[];
 };
 
-export const CreateWorkout: React.FC<{ workoutData: NewWorkout }> = (props) => {
-  const { workoutData } = props;
+type Set = {
+  id: number;
+  lbs: string;
+  reps: string;
+};
 
+export const CreateWorkout: React.FC = () => {
   const exerciseOptions = useMemo(
     () => exercises.filter((x) => x.category === "strength").map((x) => x.name),
     [exercises],
   );
 
   const [name, setName] = useState<string>("");
-  const [selectedWorkout, setSelectedWorkout] = useState("Select an Exercise");
 
   const [timeOfDay, setTimeOfDay] = useState<Option | undefined>(
     timeOfDayOptions[0],
@@ -71,10 +75,6 @@ export const CreateWorkout: React.FC<{ workoutData: NewWorkout }> = (props) => {
 
   const [currentExercise, setCurrentExercise] = useState<boolean>(false);
 
-  const handleSetSelected = (string: string) => {
-    setSelectedWorkout(string);
-  };
-
   const handleSetTimeOfDay = (option: Option) => {
     setTimeOfDay(option);
   };
@@ -87,15 +87,9 @@ export const CreateWorkout: React.FC<{ workoutData: NewWorkout }> = (props) => {
     setDuration(option);
   };
 
-  // const [currentExercises, setCurrentExercises] = useState<Exercise[]>([]);
-  // const [exerciseCount, setExerciseCount] = useState(0);
-
-  // const handleAddExercise = () => {
-  //   setCurrentExercises((prev) => [
-  //     ...prev,
-  //     { name: "Select an Exercise", id: prev.length + 1 },
-  //   ]);
-  // };
+  const saveExercise = (exercise: Exercise) => {
+    console.log(exercise);
+  };
 
   return (
     <div className="flex flex-col gap-y-3">
@@ -148,32 +142,15 @@ export const CreateWorkout: React.FC<{ workoutData: NewWorkout }> = (props) => {
           Add Exercise
         </Button>
 
-        <div className="mt-3">
-          {currentExercise && <AddExercise exerciseOptions={exerciseOptions} />}
+        <div className="mt-6">
+          {currentExercise && (
+            <AddExercise
+              exerciseOptions={exerciseOptions}
+              saveExercise={saveExercise}
+            />
+          )}
         </div>
       </div>
-
-      {/* <div className="flex flex-col gap-2">
-        {currentExercises.length > 0 &&
-          currentExercises.map((x) => (
-            <div key={x.id}>
-              <ComboBox
-                options={exercisesOptions}
-                selected={selectedWorkout}
-                setSelected={handleSetSelected}
-              />
-            </div>
-          ))}
-      </div> */}
-
-      {/* <div className="flex flex-col gap-1">
-        <span className="text-sm">Select an Exercise</span>
-        <ComboBox
-          options={exercisesOptions}
-          selected={selectedWorkout}
-          setSelected={handleSetSelected}
-        />
-      </div> */}
 
       {/* <button onClick={() => handleCreateWorkout(workoutData)}>
         Create Workout
@@ -184,16 +161,14 @@ export const CreateWorkout: React.FC<{ workoutData: NewWorkout }> = (props) => {
   );
 };
 
-type Set = {
-  id: number;
-  lbs: string;
-  reps: string;
-};
+export const AddExercise: React.FC<{
+  exerciseOptions: string[];
+  saveExercise: (exercise: Exercise) => void;
+}> = (props) => {
+  const { exerciseOptions, saveExercise } = props;
 
-export const AddExercise: React.FC<{ exerciseOptions: string[] }> = ({
-  exerciseOptions,
-}) => {
-  const [selectedExercise, setSelectedExercise] = useState<string>("");
+  const [selectedExercise, setSelectedExercise] =
+    useState<string>("Select an Exercise");
   const [currentSetId, setCurrentSetId] = useState(0);
   const [setInfo, setSetInfo] = useState<Set[]>([{ id: 0, lbs: "", reps: "" }]);
 
@@ -214,7 +189,13 @@ export const AddExercise: React.FC<{ exerciseOptions: string[] }> = ({
     setCurrentSetId(newSetId);
   };
 
-  console.log(setInfo);
+  const handleSaveExercise = () => {
+    const exercise: Exercise = {
+      name: selectedExercise,
+      sets: setInfo,
+    };
+    saveExercise(exercise);
+  };
 
   return (
     <div className="flex flex-col">
@@ -259,21 +240,30 @@ export const AddExercise: React.FC<{ exerciseOptions: string[] }> = ({
             <div>
               <Button
                 onClick={() =>
-                  setSetInfo((prev) => [...prev.filter((x) => x.id !== set.id)])
+                  setSetInfo((prev) =>
+                    prev.length > 1
+                      ? [...prev.filter((x) => x.id !== set.id)]
+                      : prev,
+                  )
                 }
+                // className="flex h-full p-2 text-sm"
+                size={"icon"}
               >
                 X
               </Button>
             </div>
           </div>
         ))}
-        <div className="mt-2">
+        <div className="mt-2 flex w-full gap-x-8">
           <Button
             variant={"secondary"}
-            className="w-full"
+            className="w-1/2"
             onClick={() => handleAddSet()}
           >
             Add Set
+          </Button>
+          <Button className="w-1/2" onClick={handleSaveExercise}>
+            Complete Exercise
           </Button>
         </div>
       </div>

@@ -10,7 +10,7 @@ export default async function Home() {
     redirect("/");
   }
 
-  const test = api.workout.getAllWorkouts.query({ userId: session.user.id });
+  // const test = api.workout.getAllWorkouts.query({ userId: session.user.id });
 
   const workoutData = {
     userId: session.user.id,
@@ -26,7 +26,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-800 text-white">
       <h1 className="text-4xl font-bold">Workout Tracker</h1>
       <div className="mt-12">
-        <CreateWorkout workoutData={workoutData} />
+        <CreateWorkout />
       </div>
     </main>
   );

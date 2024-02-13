@@ -9,6 +9,7 @@ import {
   timestamp,
   varchar,
   serial,
+  date,
 } from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -48,26 +49,42 @@ export const workouts = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
   },
-  (example) => ({
-    userIdIdx: index("userId_idx").on(example.userId),
+  (x) => ({
+    userIdIdx: index("userId_idx").on(x.userId),
   }),
 );
 
 export type Workout = typeof workouts.$inferSelect;
 export type NewWorkout = typeof workouts.$inferInsert;
 
+export const exercise = createTable(
+  "exercise",
+  {
+    id: serial("id").primaryKey(),
+    workoutId: varchar("workoutId", { length: 256 }).notNull(),
+    name: varchar("name", { length: 256 }).notNull(),
+    date: date("date"),
+  },
+  (x) => ({
+    workoutIdIdx: index("workoutId_idx").on(x.workoutId),
+  }),
+);
+
+export type Exercise = typeof workouts.$inferSelect;
+export type NewExercise = typeof workouts.$inferInsert;
+
 export const sets = createTable(
   "sets",
   {
     id: serial("id").primaryKey(),
-    workoutId: varchar("workoutId", { length: 256 }),
+    exerciseId: varchar("exerciseId", { length: 256 }),
     setNumber: int("setNumber"),
     weightAmount: int("weightAmount"),
     weightUnit: varchar("weightMeasurement", { length: 256 }),
     repAmount: int("repAmount"),
   },
-  (example) => ({
-    workoutIdIdx: index("workoutId_idx").on(example.workoutId),
+  (x) => ({
+    exerciseIdIdx: index("exerciseId_idx").on(x.exerciseId),
   }),
 );
 
@@ -101,8 +118,15 @@ export const workoutRelations = relations(workouts, ({ one }) => ({
   workout: one(users, { fields: [workouts.userId], references: [users.id] }),
 }));
 
+export const exerciseRelations = relations(exercise, ({ one }) => ({
+  exercise: one(workouts, {
+    fields: [exercise.workoutId],
+    references: [workouts.id],
+  }),
+}));
+
 export const setsRelations = relations(sets, ({ one }) => ({
-  set: one(workouts, { fields: [sets.workoutId], references: [workouts.id] }),
+  set: one(exercise, { fields: [sets.exerciseId], references: [exercise.id] }),
 }));
 
 export const accounts = createTable(

@@ -42,28 +42,28 @@ export const workoutRouter = createTRPCRouter({
       return { status: "success", workout: newWorkout };
     }),
 
-  createSet: protectedProcedure
-    .input(
-      z.object({
-        // userId: z.string(),
-        workoutId: z.string().optional().nullable(),
-        setNumber: z.number().optional().nullable(),
-        weightAmount: z.number().optional().nullable(),
-        weightUnit: z.string().optional().nullable(),
-        repAmount: z.number().optional().nullable(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const { workoutId, setNumber, weightAmount, weightUnit, repAmount } =
-        input;
-      const newSet = await db.insert(sets).values({
-        workoutId,
-        setNumber,
-        weightAmount,
-        weightUnit,
-        repAmount,
-      });
+  // createSet: protectedProcedure
+  //   .input(
+  //     z.object({
+  //       // userId: z.string(),
+  //       workoutId: z.string().optional().nullable(),
+  //       setNumber: z.number().optional().nullable(),
+  //       weightAmount: z.number().optional().nullable(),
+  //       weightUnit: z.string().optional().nullable(),
+  //       repAmount: z.number().optional().nullable(),
+  //     }),
+  //   )
+  //   .mutation(async ({ input }) => {
+  //     const { workoutId, setNumber, weightAmount, weightUnit, repAmount } =
+  //       input;
+  //     const newSet = await db.insert(sets).values({
+  //       workoutId,
+  //       setNumber,
+  //       weightAmount,
+  //       weightUnit,
+  //       repAmount,
+  //     });
 
-      return { status: "success", set: newSet };
-    }),
+  //     return { status: "success", set: newSet };
+  //   }),
 });
