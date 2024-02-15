@@ -16,7 +16,7 @@ export const handleCreateWorkout = async (
     duration?: string;
     specificName?: string;
     notes?: string;
-    date?: Date;
+    date: Date;
   },
   exercises: {
     name: string;

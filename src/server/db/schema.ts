@@ -41,6 +41,7 @@ export const workouts = createTable(
     name: varchar("name", { length: 256 }),
     userId: varchar("userId", { length: 255 }).notNull(),
     time: varchar("time", { length: 256 }),
+    date: date("date").notNull(),
     type: varchar("type", { length: 256 }),
     specificName: varchar("specificName", { length: 256 }),
     duration: varchar("duration", { length: 256 }),

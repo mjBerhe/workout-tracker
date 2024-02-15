@@ -1,10 +1,14 @@
-import { z } from "zod";
+import { set, z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { sets, workouts } from "~/server/db/schema";
+import {
+  workouts,
+  exercise as exerciseTable,
+  sets as setTable,
+} from "~/server/db/schema";
 import { db } from "~/server/db";
 
 export const workoutRouter = createTRPCRouter({
@@ -24,10 +28,10 @@ export const workoutRouter = createTRPCRouter({
         duration: z.string().optional(),
         specificName: z.string().optional().nullable(),
         notes: z.string().optional().nullable(),
-        date: z.date().optional(),
+        date: z.date(),
         exercises: z.array(
           z.object({
-            name: z.string().optional().nullable(),
+            name: z.string(),
             sets: z.array(
               z.object({
                 // id: z.number().optional(),
@@ -44,26 +48,42 @@ export const workoutRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const {
         userId,
-        name,
+        name: workoutName,
         type,
         time,
         specificName,
         duration,
         notes,
+        date,
         exercises,
       } = input;
 
-      console.log(input);
+      const newWorkout = await db.insert(workouts).values({
+        userId,
+        date,
+        name: workoutName,
+        time,
+        type,
+        duration,
+      });
+      const workoutId = newWorkout.insertId;
 
-      // const newWorkout = await db.insert(workouts).values({
-      //   userId,
-      //   name,
-      //   type,
-      //   time,
-      //   specificName,
-      //   duration,
-      //   notes,
-      // });
+      const test = exercises.map(async (exercise) => {
+        const newExercise = await db.insert(exerciseTable).values({
+          date: date,
+          name: exercise.name,
+          workoutId: workoutId,
+        });
+        const exerciseId = newExercise.insertId;
+        const sets = exercise.sets.map((x) => ({
+          exerciseId,
+          setNumber: parseInt(x.setNumber),
+          weightAmount: parseInt(x.weightAmount),
+          repAmount: parseInt(x.repAmount),
+          weightMeasurement: x.weightUnit,
+        }));
+        const newSets = await db.insert(setTable).values([...sets]);
+      });
 
       // return { status: "success", workout: newWorkout };
     }),

@@ -95,8 +95,6 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
     setSelectedExercises((prev) => [...prev, exercise]);
   };
 
-  console.log(selectedExercises);
-
   const createWorkout = async () => {
     await handleCreateWorkout(
       {
@@ -105,6 +103,7 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
         time: timeOfDay?.name,
         type: workoutType?.name,
         duration: duration?.name,
+        date: new Date(),
       },
       [...selectedExercises],
     );
