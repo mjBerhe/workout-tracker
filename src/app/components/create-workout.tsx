@@ -96,7 +96,7 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
   };
 
   const createWorkout = async () => {
-    await handleCreateWorkout(
+    const response = await handleCreateWorkout(
       {
         userId: props.userId,
         name: workoutName,
@@ -107,6 +107,7 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
       },
       [...selectedExercises],
     );
+    console.log(response.status);
   };
 
   return (

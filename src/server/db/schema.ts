@@ -81,7 +81,7 @@ export const sets = createTable(
     exerciseId: varchar("exerciseId", { length: 256 }),
     setNumber: int("setNumber"),
     weightAmount: int("weightAmount"),
-    weightUnit: varchar("weightMeasurement", { length: 256 }),
+    weightUnit: varchar("weightUnit", { length: 256 }),
     repAmount: int("repAmount"),
   },
   (x) => ({

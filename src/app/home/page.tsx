@@ -25,9 +25,10 @@ export default async function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-800 text-white">
       <h1 className="text-4xl font-bold">Workout Tracker</h1>
-      <div className="mt-12">
+      {/* <div className="mt-12">
         <CreateWorkout userId={session.user.id} />
-      </div>
+      </div> */}
+      <div></div>
     </main>
   );
 }

@@ -34,7 +34,6 @@ export const workoutRouter = createTRPCRouter({
             name: z.string(),
             sets: z.array(
               z.object({
-                // id: z.number().optional(),
                 setNumber: z.string(),
                 weightAmount: z.string(),
                 weightUnit: z.string(),
@@ -80,36 +79,11 @@ export const workoutRouter = createTRPCRouter({
           setNumber: parseInt(x.setNumber),
           weightAmount: parseInt(x.weightAmount),
           repAmount: parseInt(x.repAmount),
-          weightMeasurement: x.weightUnit,
+          weightUnit: x.weightUnit,
         }));
         const newSets = await db.insert(setTable).values([...sets]);
       });
 
-      // return { status: "success", workout: newWorkout };
+      return { status: "success" };
     }),
-
-  // createSet: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       // userId: z.string(),
-  //       workoutId: z.string().optional().nullable(),
-  //       setNumber: z.number().optional().nullable(),
-  //       weightAmount: z.number().optional().nullable(),
-  //       weightUnit: z.string().optional().nullable(),
-  //       repAmount: z.number().optional().nullable(),
-  //     }),
-  //   )
-  //   .mutation(async ({ input }) => {
-  //     const { workoutId, setNumber, weightAmount, weightUnit, repAmount } =
-  //       input;
-  //     const newSet = await db.insert(sets).values({
-  //       workoutId,
-  //       setNumber,
-  //       weightAmount,
-  //       weightUnit,
-  //       repAmount,
-  //     });
-
-  //     return { status: "success", set: newSet };
-  //   }),
 });
