@@ -30,7 +30,7 @@
     "dotenv": "^16.4.1",
     "drizzle-orm": "^0.29.3",
     "fuzzysort": "^2.0.4",
-    "lucide-react": "^0.323.0",
+    "lucide-react": "^0.331.0",
     "next": "^14.0.4",
     "next-auth": "^4.24.5",
     "popover": "^2.4.1",
@@ -40,6 +40,7 @@
     "shadcn-ui": "^0.8.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.1",
+    "usehooks-ts": "^2.14.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

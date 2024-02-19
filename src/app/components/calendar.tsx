@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import { useState, useEffect, useRef } from "react";
+import { useHover } from "usehooks-ts";
+import dayjs from "dayjs";
 import clsx from "clsx";
+
 import { Button } from "./basic/button";
-// import { locale } from "dayjs";
+import { ChevronRight, ChevronLeft, Plus } from "lucide-react";
 
 const DAYS_OF_WEEK = [
   "Sunday",
@@ -32,6 +34,8 @@ const MONTH_TO_NAME = [
 ];
 
 const DAYS_OF_WEEK_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+const borderColor = "border-dark-400";
 
 export const Calender: React.FC = () => {
   const month = dayjs().month();
@@ -81,24 +85,29 @@ export const Calender: React.FC = () => {
     }
   };
 
-  const borderColor = "border-dark-400";
-
   return (
     <div className="flex flex-col">
-      <div>
-        <span className="text-2xl">
-          {currentMonthName} {currentYear}
-        </span>
-        <div className="flex gap-x-4">
-          <Button onClick={handlePrevMonth}>Prev</Button>
-          <Button onClick={handleNextMonth}>Next</Button>
+      <div className="flex items-center">
+        <div className="flex gap-x-2">
+          <Button onClick={handlePrevMonth} variant={"icon"} size={"icon"}>
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button onClick={handleNextMonth} variant={"icon"} size={"icon"}>
+            <ChevronRight className="ml-1" />
+          </Button>
+        </div>
+        <div className="ml-4 text-2xl font-semibold text-slate-200">
+          <span>{currentMonthName}</span>
+          <span> {currentYear}</span>
         </div>
       </div>
 
       <div
         className={clsx(
-          "bg-dark-200 mt-8 grid h-[750px] grid-cols-7 rounded-t-lg border-l-[1px] border-t-[1px] shadow-lg",
-          `grid-rows-[repeat(${rowAmount},_1fr)]`,
+          "mt-8 grid h-[750px] grid-cols-7 rounded-t-lg border-l-[1px] border-t-[1px] bg-dark-200 shadow-lg",
+          rowAmount === 5
+            ? "grid-rows-[repeat(5,_1fr)]"
+            : "grid-rows-[repeat(6,_1fr)]",
           borderColor,
         )}
       >
@@ -112,25 +121,18 @@ export const Calender: React.FC = () => {
                 borderColor,
               )}
             >
-              <span className="text-primary-600 font-semibold">
+              <span className="font-semibold text-primary-600">
                 {DAYS_OF_WEEK_SHORT[i]}
               </span>
             </div>
           ))}
         {currentDaysOfMonth.map((day, i) => (
-          <div
+          <CalendarDay
             key={day.date()}
-            className={clsx(
-              "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
-              borderColor,
-              emptyDays + i === 6 ? "rounded-tr-lg" : "",
-            )}
-          >
-            <span className="text-primary-600 font-semibold">
-              {day.date() < 8 - emptyDays && DAYS_OF_WEEK_SHORT[day.day()]}
-            </span>
-            <span className="mt-2">{day.date()}</span>
-          </div>
+            day={day}
+            index={i}
+            emptyDays={emptyDays}
+          />
         ))}
         {Array(fillerDays)
           .fill(null)
@@ -144,6 +146,37 @@ export const Calender: React.FC = () => {
             ></div>
           ))}
       </div>
+    </div>
+  );
+};
+
+export const CalendarDay: React.FC<{
+  day: dayjs.Dayjs;
+  emptyDays: number;
+  index: number;
+}> = ({ day, emptyDays, index }) => {
+  const hoverRef = useRef(null);
+  const isHover = useHover(hoverRef);
+  return (
+    <div
+      ref={hoverRef}
+      className={clsx(
+        "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
+        borderColor,
+        emptyDays + index === 6 ? "rounded-tr-lg" : "",
+      )}
+    >
+      <span className="font-semibold text-primary-600">
+        {day.date() < 8 - emptyDays && DAYS_OF_WEEK_SHORT[day.day()]}
+      </span>
+      <span className="mt-1 text-slate-300">{day.date()}</span>
+      {isHover && (
+        <div className={clsx("mt-2", isHover ? "animate-fade-in" : "")}>
+          <Button variant={"icon-secondary"} size={"icon"}>
+            <Plus className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

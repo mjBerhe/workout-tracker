@@ -19,6 +19,15 @@ export default {
         "primary-500": "#a788fb",
         "primary-600": "#ba9ffc",
       },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+      },
+      animation: {
+        "fade-in": "fadeIn 250ms ease-in-out",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
