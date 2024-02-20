@@ -20,13 +20,28 @@ export default {
         "primary-600": "#ba9ffc",
       },
       keyframes: {
-        fadeIn: {
+        "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "fade-in-delay": {
+          "0%": { opacity: "0" },
+          "60%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "flex-delay": {
+          "0%": { display: "block" },
+          "100%": { display: "flex" },
+        },
       },
       animation: {
-        "fade-in": "fadeIn 250ms ease-in-out",
+        "fade-in": "fade-in 250ms ease-in-out",
+        "fade-in-delay":
+          "1400ms ease-in-out 0s normal forwards 1 fade-in-delay",
+        "flex-delay": "flex-delay 0ms forwards 600ms",
+      },
+      transitionProperty: {
+        shrink: "height ease-in-out, width ease-in-out",
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],

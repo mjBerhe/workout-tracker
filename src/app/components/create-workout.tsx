@@ -9,6 +9,7 @@ import { Input } from "~/app/components/input";
 import { Select, type Option } from "~/app/components/basic/select";
 import { ComboBox } from "./basic/combobox";
 import { Button } from "./basic/button";
+import { X } from "lucide-react";
 
 const timeOfDayOptions: Option[] = [
   { name: "Morning", id: 0 },
@@ -34,16 +35,6 @@ const durationOptions: Option[] = [
 
 type Exercise = {
   name: string;
-  // force: string;
-  // level: string;
-  // mechanic: string;
-  // equipment: string;
-  // primaryMuscles: string[];
-  // secondaryMuscles: string[];
-  // instructions: string;
-  // category: string;
-  // images: string[];
-  // id: string | number;
   sets: Set[];
 };
 
@@ -55,7 +46,10 @@ type Set = {
   repAmount: string;
 };
 
-export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
+export const CreateWorkout: React.FC<{
+  userId: string;
+  closeWorkout: () => void;
+}> = ({ userId, closeWorkout }) => {
   const exerciseOptions = useMemo(
     () => exercises.filter((x) => x.category === "strength").map((x) => x.name),
     [exercises],
@@ -98,7 +92,7 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
   const createWorkout = async () => {
     const response = await handleCreateWorkout(
       {
-        userId: props.userId,
+        userId: userId,
         name: workoutName,
         time: timeOfDay?.name,
         type: workoutType?.name,
@@ -111,20 +105,38 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
   };
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm">Workout Name</span>
-        <Input
-          placeholder="Workout Name"
-          value={workoutName}
-          onChange={(e) => setWorkoutName(e.currentTarget.value)}
-          className="text-black"
-        />
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-2xl font-semibold text-slate-100">
+          New Workout
+        </span>
+        <Button
+          variant={"icon"}
+          size={"icon"}
+          onClick={closeWorkout}
+          className="hover:bg-dark-300/80"
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
-      <div className="flex gap-x-4">
-        <div className="flex min-w-[200px] flex-col gap-1">
-          <span className="text-sm">Type of Workout</span>
+      <div className="mt-6 grid grid-cols-5 grid-rows-5 items-center gap-x-4 gap-y-6">
+        <div className="col-span-1">
+          <span className="text-sm text-slate-300">Name</span>
+        </div>
+        <div className="col-span-4">
+          <Input
+            placeholder="Upper Body 1"
+            value={workoutName}
+            onChange={(e) => setWorkoutName(e.currentTarget.value)}
+            className="bg-dark-200 text-slate-200"
+          />
+        </div>
+
+        <div className="col-span-1">
+          <span className="text-sm text-slate-300">Type</span>
+        </div>
+        <div className="col-span-4">
           <Select
             options={workoutTypeOptions}
             selected={workoutType}
@@ -132,8 +144,10 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
           />
         </div>
 
-        <div className="flex min-w-[150px] flex-col gap-1">
-          <span className="text-sm">Time of Day</span>
+        <div className="col-span-1">
+          <span className="text-sm text-slate-300">Time of Day</span>
+        </div>
+        <div className="col-span-4">
           <Select
             options={timeOfDayOptions}
             selected={timeOfDay}
@@ -141,8 +155,10 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
           />
         </div>
 
-        <div className="flex min-w-[130px] flex-col gap-1">
-          <span className="text-sm">Duration</span>
+        <div className="col-span-1">
+          <span className="text-sm text-slate-300">Duration</span>
+        </div>
+        <div className="col-span-4">
           <Select
             options={durationOptions}
             selected={duration}
@@ -151,10 +167,10 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
         </div>
       </div>
 
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <Button
           disabled={currentExercise}
-          variant={"secondary"}
+          variant={"link"}
           className="w-full"
           onClick={() => setCurrentExercise((prev) => !prev)}
         >
@@ -169,9 +185,9 @@ export const CreateWorkout: React.FC<{ userId: string }> = (props) => {
             />
           )}
         </div>
-      </div>
+      </div> */}
 
-      <button onClick={createWorkout}>Create Workout</button>
+      {/* <button onClick={createWorkout}>Create Workout</button> */}
 
       {/* <button>Create Set</button> */}
     </div>

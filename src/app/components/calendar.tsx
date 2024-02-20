@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, Fragment } from "react";
 import { useHover } from "usehooks-ts";
 import dayjs from "dayjs";
 import clsx from "clsx";
+import { Dialog, Transition } from "@headlessui/react";
 
-import { Button } from "./basic/button";
+import { CreateWorkout } from "./create-workout";
+import { Button } from "~/app/components/basic/button";
 import { ChevronRight, ChevronLeft, Plus } from "lucide-react";
 
 const DAYS_OF_WEEK = [
@@ -37,7 +39,7 @@ const DAYS_OF_WEEK_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const borderColor = "border-dark-400";
 
-export const Calender: React.FC = () => {
+export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
   const month = dayjs().month();
   const year = dayjs().year();
 
@@ -85,6 +87,14 @@ export const Calender: React.FC = () => {
     }
   };
 
+  const [showAddWorkout, setShowAddingWorkout] = useState<boolean>(false);
+  const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs>();
+
+  const handleShowAddWorkout = (day: dayjs.Dayjs) => {
+    setSelectedDay(day);
+    setShowAddingWorkout(true);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center">
@@ -104,48 +114,80 @@ export const Calender: React.FC = () => {
 
       <div
         className={clsx(
-          "mt-8 grid h-[750px] grid-cols-7 rounded-t-lg border-l-[1px] border-t-[1px] bg-dark-200 shadow-lg",
-          rowAmount === 5
-            ? "grid-rows-[repeat(5,_1fr)]"
-            : "grid-rows-[repeat(6,_1fr)]",
-          borderColor,
+          "mt-8 w-full",
+          showAddWorkout ? "animate-flex-delay gap-x-8" : "",
         )}
       >
-        {Array(emptyDays)
-          .fill(null)
-          .map((_, i) => (
-            <div
-              key={i}
-              className={clsx(
-                "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
-                borderColor,
-              )}
-            >
-              <span className="font-semibold text-primary-600">
-                {DAYS_OF_WEEK_SHORT[i]}
-              </span>
-            </div>
+        <div
+          className={clsx(
+            "grid grid-cols-7 rounded-t-lg border-l-[1px] border-t-[1px] bg-dark-200 shadow-lg",
+            rowAmount === 5
+              ? "grid-rows-[repeat(5,_1fr)]"
+              : "grid-rows-[repeat(6,_1fr)]",
+            borderColor,
+            showAddWorkout
+              ? "h-[400px] w-[500px] transition-all duration-1000"
+              : "h-[750px] w-full",
+          )}
+        >
+          {Array(emptyDays)
+            .fill(null)
+            .map((_, i) => (
+              <div
+                key={i}
+                className={clsx(
+                  "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
+                  borderColor,
+                )}
+              >
+                <span className="font-semibold text-primary-600">
+                  {DAYS_OF_WEEK_SHORT[i]}
+                </span>
+              </div>
+            ))}
+          {currentDaysOfMonth.map((day, i) => (
+            <CalendarDay
+              key={day.date()}
+              day={day}
+              index={i}
+              emptyDays={emptyDays}
+              openModal={handleShowAddWorkout}
+            />
           ))}
-        {currentDaysOfMonth.map((day, i) => (
-          <CalendarDay
-            key={day.date()}
-            day={day}
-            index={i}
-            emptyDays={emptyDays}
-          />
-        ))}
-        {Array(fillerDays)
-          .fill(null)
-          .map((_, i) => (
-            <div
-              key={i}
-              className={clsx(
-                "flex flex-col items-center border-b-[1px] border-r-[1px]",
-                borderColor,
-              )}
-            ></div>
-          ))}
+          {Array(fillerDays)
+            .fill(null)
+            .map((_, i) => (
+              <div
+                key={i}
+                className={clsx(
+                  "flex flex-col items-center border-b-[1px] border-r-[1px]",
+                  borderColor,
+                )}
+              ></div>
+            ))}
+        </div>
+
+        <div
+          className={clsx(
+            "",
+            showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
+          )}
+        >
+          <div className="flex rounded-lg border border-dark-400 bg-dark-200 px-7 py-5 shadow-lg">
+            <CreateWorkout
+              userId={userId}
+              closeWorkout={() => setShowAddingWorkout(false)}
+            />
+          </div>
+        </div>
       </div>
+
+      {/* <CreateWorkoutModal
+        isOpen={isOpen}
+        closeModal={() => setIsOpen(false)}
+        selectedDay={selectedDay}
+        userId={userId}
+      /> */}
     </div>
   );
 };
@@ -154,9 +196,11 @@ export const CalendarDay: React.FC<{
   day: dayjs.Dayjs;
   emptyDays: number;
   index: number;
-}> = ({ day, emptyDays, index }) => {
+  openModal: (day: dayjs.Dayjs) => void;
+}> = ({ day, emptyDays, index, openModal }) => {
   const hoverRef = useRef(null);
   const isHover = useHover(hoverRef);
+
   return (
     <div
       ref={hoverRef}
@@ -172,7 +216,11 @@ export const CalendarDay: React.FC<{
       <span className="mt-1 text-slate-300">{day.date()}</span>
       {isHover && (
         <div className={clsx("mt-2", isHover ? "animate-fade-in" : "")}>
-          <Button variant={"icon-secondary"} size={"icon"}>
+          <Button
+            variant={"icon-secondary"}
+            size={"icon"}
+            onClick={() => openModal(day)}
+          >
             <Plus className="h-5 w-5" />
           </Button>
         </div>

@@ -38,7 +38,7 @@ export default async function Home() {
           <span className="text-4xl font-semibold">Workout Tracker</span>
         </div>
         <div className="mt-[48px]">
-          <Calender />
+          <Calender userId={session.user.id} />
         </div>
       </div>
     </main>
