@@ -15,6 +15,7 @@ export default {
         "dark-400": "#575757",
         "dark-500": "#717171",
         "dark-600": "#8b8b8b",
+        "primary-300": "#7a5af5",
         "primary-400": "#9271f9",
         "primary-500": "#a788fb",
         "primary-600": "#ba9ffc",
@@ -27,7 +28,7 @@ export default {
         "fade-in-delay": {
           "0%": { opacity: "0" },
           "60%": { opacity: "0" },
-          "100%": { opacity: "1" },
+          "100%": { opacity: "1", display: "flex" },
         },
         "flex-delay": {
           "0%": { display: "block" },
@@ -37,7 +38,7 @@ export default {
       animation: {
         "fade-in": "fade-in 250ms ease-in-out",
         "fade-in-delay":
-          "1400ms ease-in-out 0s normal forwards 1 fade-in-delay",
+          "1200ms ease-in-out 0s normal forwards 1 fade-in-delay",
         "flex-delay": "flex-delay 0ms forwards 600ms",
       },
       transitionProperty: {

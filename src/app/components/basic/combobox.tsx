@@ -1,4 +1,7 @@
+"use client";
+
 import { Fragment, useState } from "react";
+import { cn } from "~/app/lib/utils";
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import fuzzysort from "fuzzysort";
@@ -20,11 +23,16 @@ export const ComboBox: React.FC<{
     <div className="w-full">
       <Combobox value={selected} onChange={setSelected}>
         <div className="relative">
-          <div className="relative cursor-default overflow-hidden rounded-lg border-none bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+          <div
+            className={cn(
+              "relative cursor-default overflow-hidden rounded-lg border-none text-left shadow-md sm:text-sm",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300",
+            )}
+          >
             <Combobox.Button className="w-full">
               {({ open }) => (
                 <Combobox.Input
-                  className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                  className="w-full border-none bg-dark-400 py-2 pl-3 pr-10 text-sm leading-5 text-slate-100 focus:ring-0"
                   // displayValue={(option) => option}
                   onChange={(event) => setQuery(event.target.value)}
                   onClick={(e) => {

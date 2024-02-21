@@ -1,4 +1,7 @@
+"use client";
+
 import { Fragment } from "react";
+import { cn } from "~/app/lib/utils";
 import { Combobox, Transition, Listbox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
@@ -18,8 +21,15 @@ export const Select: React.FC<{
     <div className="">
       <Listbox value={selected} onChange={(v) => setSelected(v)}>
         <div className="relative">
-          <Listbox.Button className="relative w-full cursor-default rounded-lg border bg-dark-200 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-            <span className="block truncate text-slate-200">
+          <Listbox.Button
+            className={cn(
+              "relative w-full cursor-default rounded-lg border-none bg-dark-400 px-3 py-2 text-left shadow-md",
+              "sm:text-sm",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300",
+              // "focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 ",
+            )}
+          >
+            <span className="block truncate text-slate-100">
               {selected?.name}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -35,13 +45,13 @@ export const Select: React.FC<{
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md bg-dark-400 py-1 text-base text-slate-200 shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
               {options.map((option, i) => (
                 <Listbox.Option
                   key={i}
                   className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-9 pr-4 ${
-                      active ? "bg-amber-100 text-amber-900" : "text-gray-900"
+                    `relative cursor-default select-none px-4 py-2 ${
+                      active ? "bg-dark-500 text-white" : "text-slate-200"
                     }`
                   }
                   value={option}
@@ -50,16 +60,16 @@ export const Select: React.FC<{
                     <>
                       <span
                         className={`block truncate ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? "text-white" : "text-slate-200"
                         }`}
                       >
                         {option.name}
                       </span>
-                      {selected ? (
+                      {/* {selected ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-amber-600">
                           <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
-                      ) : null}
+                      ) : null} */}
                     </>
                   )}
                 </Listbox.Option>

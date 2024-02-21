@@ -1,15 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type dayjs from "dayjs";
 import { handleCreateWorkout } from "~/app/actions";
 import type { NewWorkout, NewSet } from "~/server/db/schema";
 import { exercises } from "~/const/exercises";
+import { X, ChevronDown } from "lucide-react";
 
+import { Disclosure } from "@headlessui/react";
 import { Input } from "~/app/components/input";
 import { Select, type Option } from "~/app/components/basic/select";
-import { ComboBox } from "./basic/combobox";
-import { Button } from "./basic/button";
-import { X } from "lucide-react";
+import { ComboBox } from "~/app/components/basic/combobox";
+import { Button } from "~/app/components/basic/button";
 
 const timeOfDayOptions: Option[] = [
   { name: "Morning", id: 0 },
@@ -46,15 +48,17 @@ type Set = {
   repAmount: string;
 };
 
+const InputDarkClass = "bg-dark-400 text-slate-200";
+
+const exerciseOptions = exercises
+  .filter((x) => x.category === "strength")
+  .map((x) => x.name);
+
 export const CreateWorkout: React.FC<{
   userId: string;
   closeWorkout: () => void;
-}> = ({ userId, closeWorkout }) => {
-  const exerciseOptions = useMemo(
-    () => exercises.filter((x) => x.category === "strength").map((x) => x.name),
-    [exercises],
-  );
-
+  selectedDay?: dayjs.Dayjs | null;
+}> = ({ userId, closeWorkout, selectedDay }) => {
   const [workoutName, setWorkoutName] = useState<string>("");
 
   const [timeOfDay, setTimeOfDay] = useState<Option | undefined>(
@@ -66,7 +70,7 @@ export const CreateWorkout: React.FC<{
   );
 
   const [duration, setDuration] = useState<Option | undefined>(
-    durationOptions[0],
+    durationOptions[3],
   );
 
   const [currentExercise, setCurrentExercise] = useState<boolean>(false);
@@ -106,10 +110,16 @@ export const CreateWorkout: React.FC<{
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between">
-        <span className="text-2xl font-semibold text-slate-100">
-          New Workout
-        </span>
+      <div className="flex justify-between">
+        <div className="flex flex-col">
+          <span className="text-2xl font-semibold text-slate-100">
+            New Workout
+          </span>
+          <span className="text-sm text-primary-600">
+            {selectedDay?.format("MM/DD/YYYY")}
+          </span>
+        </div>
+
         <Button
           variant={"icon"}
           size={"icon"}
@@ -120,23 +130,23 @@ export const CreateWorkout: React.FC<{
         </Button>
       </div>
 
-      <div className="mt-6 grid grid-cols-5 grid-rows-5 items-center gap-x-4 gap-y-6">
+      <div className="mt-6 grid grid-cols-4 grid-rows-4 items-center gap-x-10 gap-y-6">
         <div className="col-span-1">
-          <span className="text-sm text-slate-300">Name</span>
+          <span className="text-sm text-slate-200">Name</span>
         </div>
-        <div className="col-span-4">
+        <div className="col-span-3">
           <Input
-            placeholder="Upper Body 1"
+            placeholder="Workout Name"
             value={workoutName}
             onChange={(e) => setWorkoutName(e.currentTarget.value)}
-            className="bg-dark-200 text-slate-200"
+            className={InputDarkClass}
           />
         </div>
 
         <div className="col-span-1">
-          <span className="text-sm text-slate-300">Type</span>
+          <span className="text-sm text-slate-200">Type</span>
         </div>
-        <div className="col-span-4">
+        <div className="col-span-3">
           <Select
             options={workoutTypeOptions}
             selected={workoutType}
@@ -145,9 +155,9 @@ export const CreateWorkout: React.FC<{
         </div>
 
         <div className="col-span-1">
-          <span className="text-sm text-slate-300">Time of Day</span>
+          <span className="text-sm text-slate-200">Time of Day</span>
         </div>
-        <div className="col-span-4">
+        <div className="col-span-3">
           <Select
             options={timeOfDayOptions}
             selected={timeOfDay}
@@ -156,9 +166,9 @@ export const CreateWorkout: React.FC<{
         </div>
 
         <div className="col-span-1">
-          <span className="text-sm text-slate-300">Duration</span>
+          <span className="text-sm text-slate-200">Duration</span>
         </div>
-        <div className="col-span-4">
+        <div className="col-span-3">
           <Select
             options={durationOptions}
             selected={duration}
@@ -167,25 +177,28 @@ export const CreateWorkout: React.FC<{
         </div>
       </div>
 
-      {/* <div className="mt-4">
+      {currentExercise && (
+        <div className="mt-4">
+          <NewExercise
+            exerciseOptions={exerciseOptions}
+            saveExercise={saveExercise}
+          />
+        </div>
+      )}
+
+      <hr className="mt-4 border-t border-dark-500" />
+
+      <div className="mt-4 flex w-full justify-center">
         <Button
           disabled={currentExercise}
-          variant={"link"}
-          className="w-full"
+          variant={"ghost"}
+          size="sm"
+          className="h-auto"
           onClick={() => setCurrentExercise((prev) => !prev)}
         >
           Add Exercise
         </Button>
-
-        <div className="mt-6">
-          {currentExercise && (
-            <AddExercise
-              exerciseOptions={exerciseOptions}
-              saveExercise={saveExercise}
-            />
-          )}
-        </div>
-      </div> */}
+      </div>
 
       {/* <button onClick={createWorkout}>Create Workout</button> */}
 
@@ -194,7 +207,7 @@ export const CreateWorkout: React.FC<{
   );
 };
 
-export const AddExercise: React.FC<{
+export const NewExercise: React.FC<{
   exerciseOptions: string[];
   saveExercise: (exercise: Exercise) => void;
 }> = (props) => {
@@ -248,79 +261,108 @@ export const AddExercise: React.FC<{
   };
 
   return (
-    <div className="flex flex-col">
-      <ComboBox
-        options={exerciseOptions}
-        selected={selectedExercise}
-        setSelected={handleSetExercise}
-      />
+    <Disclosure defaultOpen={true}>
+      {({ open }) => (
+        <div className="flex flex-col border-t border-dark-500 pt-4">
+          <Disclosure.Button className="flex items-center justify-between">
+            <span>Exercise</span>
+            <ChevronDown
+              className={`${open && "rotate-180 transform"}h-5 w-5`}
+            />
+          </Disclosure.Button>
+          <Disclosure.Panel>
+            <div className="mt-3 flex">
+              <ComboBox
+                options={exerciseOptions}
+                selected={selectedExercise}
+                setSelected={handleSetExercise}
+              />
+            </div>
 
-      <div className="mt-2 flex flex-col gap-y-4">
-        <div className="grid grid-cols-4 justify-items-center">
-          <div className="">Set</div>
-          <div>lbs </div>
-          <div>Reps</div>
-          <div></div>
+            <div className="mt-3 flex flex-col gap-y-2">
+              {setInfo.map((set, i) => (
+                <div
+                  key={set.id}
+                  className="flex items-center justify-start px-8 text-slate-200"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-400/80 text-sm text-white">
+                    {i + 1}
+                  </div>
+                  <div className="ml-4 flex items-center gap-x-2">
+                    <Input
+                      type="number"
+                      className="h-[30px] w-[80px] bg-dark-400 text-slate-200"
+                      value={setInfo.find((x) => x.id === set.id)?.weightAmount}
+                      onChange={(val) =>
+                        handleChangeSet(
+                          set.id,
+                          "weightAmount",
+                          val.currentTarget.value,
+                        )
+                      }
+                    />
+                    <span className="text-sm">lbs</span>
+                  </div>
+                  <div className="ml-4 flex items-center gap-x-2">
+                    <Input
+                      type="number"
+                      className="h-[30px] w-[80px] bg-dark-400 text-slate-200"
+                      onChange={(val) =>
+                        handleChangeSet(
+                          set.id,
+                          "repAmount",
+                          val.currentTarget.value,
+                        )
+                      }
+                    />
+                    <span className="text-sm">reps</span>
+                  </div>
+
+                  <div className="ml-auto flex">
+                    <Button
+                      onClick={() =>
+                        setSetInfo((prev) =>
+                          prev.length > 1
+                            ? [...prev.filter((x) => x.id !== set.id)]
+                            : prev,
+                        )
+                      }
+                      variant={"icon"}
+                      size={"icon"}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              <div className="mt-1 flex w-full justify-center">
+                <Button
+                  variant={"ghost"}
+                  size="sm"
+                  className="h-auto"
+                  onClick={handleAddSet}
+                >
+                  Add Set
+                </Button>
+              </div>
+
+              {/* <div className="mt-2 flex w-full gap-x-8">
+                <Button
+                  variant={"secondary"}
+                  className="w-1/2"
+                  onClick={() => handleAddSet()}
+                >
+                  Add Set
+                </Button>
+                <Button className="w-1/2" onClick={handleSaveExercise}>
+                  Complete Exercise
+                </Button>
+              </div> */}
+            </div>
+          </Disclosure.Panel>
         </div>
-        {setInfo.map((set, i) => (
-          <div
-            key={set.id}
-            className="grid grid-cols-4 items-center justify-items-center"
-          >
-            <div>{i + 1}</div>
-            <div className="">
-              <Input
-                type="number"
-                className="h-[30px] w-[100px] text-black"
-                value={setInfo.find((x) => x.id === set.id)?.weightAmount}
-                onChange={(val) =>
-                  handleChangeSet(
-                    set.id,
-                    "weightAmount",
-                    val.currentTarget.value,
-                  )
-                }
-              />
-            </div>
-            <div>
-              <Input
-                type="number"
-                className="h-[30px] w-[100px] text-black"
-                onChange={(val) =>
-                  handleChangeSet(set.id, "repAmount", val.currentTarget.value)
-                }
-              />
-            </div>
-            <div>
-              <Button
-                onClick={() =>
-                  setSetInfo((prev) =>
-                    prev.length > 1
-                      ? [...prev.filter((x) => x.id !== set.id)]
-                      : prev,
-                  )
-                }
-                // className="flex h-full p-2 text-sm"
-                size={"icon"}
-              >
-                X
-              </Button>
-            </div>
-          </div>
-        ))}
-        <div className="mt-2 flex w-full gap-x-8">
-          <Button
-            variant={"secondary"}
-            className="w-1/2"
-            onClick={() => handleAddSet()}
-          >
-            Add Set
-          </Button>
-          <Button className="w-1/2" onClick={handleSaveExercise}>
-            Complete Exercise
-          </Button>
-        </div>
-      </div>
-    </div>
+      )}
+    </Disclosure>
   );
 };

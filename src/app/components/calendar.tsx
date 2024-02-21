@@ -88,13 +88,19 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
   };
 
   const [showAddWorkout, setShowAddingWorkout] = useState<boolean>(false);
-  const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs>();
+  const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs | null>(null);
 
-  const handleShowAddWorkout = (day: dayjs.Dayjs) => {
+  const handleSelectDay = (day: dayjs.Dayjs) => {
+    if (!showAddWorkout) {
+      setShowAddingWorkout(true);
+    }
     setSelectedDay(day);
-    setShowAddingWorkout(true);
   };
 
+  const handleCloseWorkout = () => {
+    setSelectedDay(null);
+    setShowAddingWorkout(false);
+  };
   return (
     <div className="flex flex-col">
       <div className="flex items-center">
@@ -138,6 +144,7 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
                 className={clsx(
                   "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
                   borderColor,
+                  showAddWorkout && "text-sm",
                 )}
               >
                 <span className="font-semibold text-primary-600">
@@ -151,7 +158,12 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
               day={day}
               index={i}
               emptyDays={emptyDays}
-              openModal={handleShowAddWorkout}
+              selectDay={handleSelectDay}
+              isSelected={
+                selectedDay?.date() === day.date() &&
+                selectedDay.month() === day.month()
+              }
+              isCondensed={showAddWorkout}
             />
           ))}
           {Array(fillerDays)
@@ -169,14 +181,15 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
 
         <div
           className={clsx(
-            "",
+            "fixed ml-[532px]",
             showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
           )}
         >
           <div className="flex rounded-lg border border-dark-400 bg-dark-200 px-7 py-5 shadow-lg">
             <CreateWorkout
               userId={userId}
-              closeWorkout={() => setShowAddingWorkout(false)}
+              closeWorkout={handleCloseWorkout}
+              selectedDay={selectedDay}
             />
           </div>
         </div>
@@ -196,8 +209,10 @@ export const CalendarDay: React.FC<{
   day: dayjs.Dayjs;
   emptyDays: number;
   index: number;
-  openModal: (day: dayjs.Dayjs) => void;
-}> = ({ day, emptyDays, index, openModal }) => {
+  selectDay: (day: dayjs.Dayjs) => void;
+  isSelected: boolean;
+  isCondensed: boolean;
+}> = ({ day, emptyDays, index, selectDay, isSelected, isCondensed }) => {
   const hoverRef = useRef(null);
   const isHover = useHover(hoverRef);
 
@@ -208,18 +223,21 @@ export const CalendarDay: React.FC<{
         "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
         borderColor,
         emptyDays + index === 6 ? "rounded-tr-lg" : "",
+        isCondensed && "cursor-pointer text-sm hover:bg-primary-400",
+        isSelected && "bg-primary-400/80",
       )}
+      onClick={() => isCondensed && selectDay(day)}
     >
       <span className="font-semibold text-primary-600">
         {day.date() < 8 - emptyDays && DAYS_OF_WEEK_SHORT[day.day()]}
       </span>
       <span className="mt-1 text-slate-300">{day.date()}</span>
-      {isHover && (
+      {isHover && !isCondensed && (
         <div className={clsx("mt-2", isHover ? "animate-fade-in" : "")}>
           <Button
             variant={"icon-secondary"}
             size={"icon"}
-            onClick={() => openModal(day)}
+            onClick={() => selectDay(day)}
           >
             <Plus className="h-5 w-5" />
           </Button>
