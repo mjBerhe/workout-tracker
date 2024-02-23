@@ -161,7 +161,8 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
               selectDay={handleSelectDay}
               isSelected={
                 selectedDay?.date() === day.date() &&
-                selectedDay.month() === day.month()
+                selectedDay.month() === day.month() &&
+                selectedDay.year() === day.year()
               }
               isCondensed={showAddWorkout}
             />
@@ -181,7 +182,7 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
 
         <div
           className={clsx(
-            "fixed ml-[532px]",
+            "",
             showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
           )}
         >

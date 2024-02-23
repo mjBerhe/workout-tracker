@@ -19,7 +19,7 @@ export const handleCreateWorkout = async (
   exercises: {
     name: string;
     sets: {
-      setNumber: string;
+      setNumber: number;
       weightAmount: string;
       weightUnit: string;
       repAmount: string;

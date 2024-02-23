@@ -34,7 +34,7 @@ export const workoutRouter = createTRPCRouter({
             name: z.string(),
             sets: z.array(
               z.object({
-                setNumber: z.string(),
+                setNumber: z.number(),
                 weightAmount: z.string(),
                 weightUnit: z.string(),
                 repAmount: z.string(),
@@ -76,7 +76,7 @@ export const workoutRouter = createTRPCRouter({
         const exerciseId = newExercise.insertId;
         const sets = exercise.sets.map((x) => ({
           exerciseId,
-          setNumber: parseInt(x.setNumber),
+          setNumber: x.setNumber,
           weightAmount: parseInt(x.weightAmount),
           repAmount: parseInt(x.repAmount),
           weightUnit: x.weightUnit,

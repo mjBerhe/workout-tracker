@@ -25,10 +25,8 @@ export default async function Home() {
     notes: "some notes here",
   };
 
-  // old = #0a0118
-
   return (
-    <main className="flex min-h-screen flex-col items-center bg-dark-100 text-white">
+    <main className="flex min-h-screen flex-col items-center bg-dark-100 pb-36 text-white">
       <div className="mx-auto w-full max-w-7xl">
         {/* <h1 className="text-4xl font-bold">Workout Tracker</h1> */}
         {/* <div className="mt-12">
