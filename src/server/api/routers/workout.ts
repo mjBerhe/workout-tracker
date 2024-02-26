@@ -1,4 +1,5 @@
 import { set, z } from "zod";
+import { eq } from "drizzle-orm";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -14,8 +15,19 @@ import { db } from "~/server/db";
 export const workoutRouter = createTRPCRouter({
   getAllWorkouts: protectedProcedure
     .input(z.object({ userId: z.string() }))
-    .query(({ input }) => {
-      return "hello";
+    .query(async ({ input }) => {
+      const { userId } = input;
+
+      const allWorkouts = await db.query.workouts.findMany({
+        where: eq(workouts.userId, userId),
+        with: {
+          exercises: {
+            with: { sets: true },
+          },
+        },
+      });
+      // console.log(allWorkouts);
+      return { workouts: allWorkouts };
     }),
 
   createWorkout: protectedProcedure

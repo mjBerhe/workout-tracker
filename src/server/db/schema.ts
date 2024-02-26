@@ -115,15 +115,17 @@ export const usersRelations = relations(users, ({ many }) => ({
   workouts: many(workouts),
 }));
 
-export const workoutRelations = relations(workouts, ({ one }) => ({
+export const workoutRelations = relations(workouts, ({ one, many }) => ({
   workout: one(users, { fields: [workouts.userId], references: [users.id] }),
+  exercises: many(exercise),
 }));
 
-export const exerciseRelations = relations(exercise, ({ one }) => ({
+export const exerciseRelations = relations(exercise, ({ one, many }) => ({
   exercise: one(workouts, {
     fields: [exercise.workoutId],
     references: [workouts.id],
   }),
+  sets: many(sets),
 }));
 
 export const setsRelations = relations(sets, ({ one }) => ({

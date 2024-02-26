@@ -196,7 +196,7 @@ export const CreateWorkout: React.FC<{
       <div className="flex justify-between">
         <div className="flex flex-col">
           <span className="text-2xl font-semibold text-slate-100">
-            New Workout
+            Add Workout
           </span>
           <span className="text-sm text-primary-600">
             {selectedDay?.format("MM/DD/YYYY")}

@@ -5,6 +5,7 @@ import { useHover } from "usehooks-ts";
 import dayjs from "dayjs";
 import clsx from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
+import type { Workout } from "~/server/db/schema";
 
 import { CreateWorkout } from "./create-workout";
 import { Button } from "~/app/components/basic/button";
@@ -39,7 +40,18 @@ const DAYS_OF_WEEK_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const borderColor = "border-dark-400";
 
-export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
+const isSameDay = (day1: dayjs.Dayjs, day2: dayjs.Dayjs) => {
+  if (day1.format("MM/DD/YYYY") === day2.format("MM/DD/YYYY")) {
+    return true;
+  }
+  return false;
+};
+
+export const Calender: React.FC<{
+  userId: string;
+  currentWorkouts: Workout[];
+}> = ({ userId, currentWorkouts }) => {
+  console.log(currentWorkouts);
   const month = dayjs().month();
   const year = dayjs().year();
 
@@ -165,6 +177,9 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
                 selectedDay.year() === day.year()
               }
               isCondensed={showAddWorkout}
+              workouts={currentWorkouts.filter((x) =>
+                isSameDay(dayjs(x.date), day),
+              )}
             />
           ))}
           {Array(fillerDays)
@@ -182,26 +197,17 @@ export const Calender: React.FC<{ userId: string }> = ({ userId }) => {
 
         <div
           className={clsx(
-            "",
+            "flex rounded-lg border border-dark-400 bg-dark-200 px-7 py-5 shadow-lg",
             showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
           )}
         >
-          <div className="flex rounded-lg border border-dark-400 bg-dark-200 px-7 py-5 shadow-lg">
-            <CreateWorkout
-              userId={userId}
-              closeWorkout={handleCloseWorkout}
-              selectedDay={selectedDay}
-            />
-          </div>
+          <CreateWorkout
+            userId={userId}
+            closeWorkout={handleCloseWorkout}
+            selectedDay={selectedDay}
+          />
         </div>
       </div>
-
-      {/* <CreateWorkoutModal
-        isOpen={isOpen}
-        closeModal={() => setIsOpen(false)}
-        selectedDay={selectedDay}
-        userId={userId}
-      /> */}
     </div>
   );
 };
@@ -213,7 +219,16 @@ export const CalendarDay: React.FC<{
   selectDay: (day: dayjs.Dayjs) => void;
   isSelected: boolean;
   isCondensed: boolean;
-}> = ({ day, emptyDays, index, selectDay, isSelected, isCondensed }) => {
+  workouts: Workout[];
+}> = ({
+  day,
+  emptyDays,
+  index,
+  selectDay,
+  isSelected,
+  isCondensed,
+  workouts,
+}) => {
   const hoverRef = useRef(null);
   const isHover = useHover(hoverRef);
 
@@ -233,6 +248,9 @@ export const CalendarDay: React.FC<{
         {day.date() < 8 - emptyDays && DAYS_OF_WEEK_SHORT[day.day()]}
       </span>
       <span className="mt-1 text-slate-300">{day.date()}</span>
+      {workouts.map((x) => (
+        <div key={x.id}>{x.name}</div>
+      ))}
       {isHover && !isCondensed && (
         <div className={clsx("mt-2", isHover ? "animate-fade-in" : "")}>
           <Button

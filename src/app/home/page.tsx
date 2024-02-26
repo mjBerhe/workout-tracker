@@ -11,19 +11,9 @@ export default async function Home() {
     redirect("/");
   }
 
-  // const workouts = api.workout.getAllWorkouts.query({
-  //   userId: session.user.id,
-  // });
-
-  const workoutData = {
+  const workouts = await api.workout.getAllWorkouts.query({
     userId: session.user.id,
-    name: "Workout 1",
-    time: "Morning",
-    duration: "15 min",
-    type: "Strength Training",
-    specificName: "Leg day",
-    notes: "some notes here",
-  };
+  });
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-dark-100 pb-36 text-white">
@@ -36,7 +26,10 @@ export default async function Home() {
           <span className="text-4xl font-semibold">Workout Tracker</span>
         </div>
         <div className="mt-[48px]">
-          <Calender userId={session.user.id} />
+          <Calender
+            userId={session.user.id}
+            currentWorkouts={workouts.workouts}
+          />
         </div>
       </div>
     </main>
