@@ -32,7 +32,7 @@ export const ComboBox: React.FC<{
             <Combobox.Button className="w-full">
               {({ open }) => (
                 <Combobox.Input
-                  className="w-full border-none bg-dark-400 py-2 pl-3 pr-10 text-sm leading-5 text-slate-100 focus:ring-0"
+                  className="w-full border-none bg-dark-100/60 py-2 pl-3 pr-10 text-sm leading-5 text-slate-100 focus:ring-0"
                   // displayValue={(option) => option}
                   onChange={(event) => setQuery(event.target.value)}
                   onClick={(e) => {
@@ -56,7 +56,7 @@ export const ComboBox: React.FC<{
             leaveTo="opacity-0"
             afterLeave={() => setQuery("")}
           >
-            <Combobox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-dark-400 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            <Combobox.Options className="border-card absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-dark-100 py-1 text-base shadow-lg focus:outline-none sm:text-sm">
               {filteredOptions.length === 0 && query !== "" ? (
                 <div className="relative cursor-default select-none px-4 py-2 text-gray-700">
                   Nothing found.
@@ -67,7 +67,9 @@ export const ComboBox: React.FC<{
                     key={option}
                     className={({ active }) =>
                       `relative cursor-default select-none px-4 py-2 ${
-                        active ? "bg-dark-500 text-white" : "text-slate-200"
+                        active
+                          ? "bg-primary-600/50 text-white"
+                          : "text-slate-200"
                       }`
                     }
                     value={option}

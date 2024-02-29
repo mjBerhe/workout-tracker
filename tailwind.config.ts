@@ -9,9 +9,9 @@ export default {
         button: "#5f43b2",
         "button-2": "#BB86FC",
         bg: "#121212",
-        "dark-100": "#121212",
-        "dark-200": "#282828",
-        "dark-300": "#3f3f3f",
+        "dark-100": "#0a0118",
+        "dark-200": "#221e2d",
+        "dark-300": "#393643",
         "dark-400": "#575757",
         "dark-500": "#717171",
         "dark-600": "#8b8b8b",
@@ -19,6 +19,10 @@ export default {
         "primary-400": "#9271f9",
         "primary-500": "#a788fb",
         "primary-600": "#ba9ffc",
+        border: "rgba(57,54,67,0.7)", // dark-300/70
+      },
+      borderColor: {
+        card: "rgba(57,54,67,0.7)",
       },
       keyframes: {
         "fade-in": {

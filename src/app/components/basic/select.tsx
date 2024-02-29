@@ -23,9 +23,9 @@ export const Select: React.FC<{
         <div className="relative">
           <Listbox.Button
             className={cn(
-              "relative w-full cursor-default rounded-lg border-none bg-dark-400 px-3 py-2 text-left shadow-md",
+              "relative w-full cursor-default rounded-lg bg-dark-100/60 px-3 py-2 text-left shadow-md",
               "sm:text-sm",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
               // "focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 ",
             )}
           >
@@ -45,13 +45,13 @@ export const Select: React.FC<{
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md bg-dark-400 py-1 text-base text-slate-200 shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            <Listbox.Options className="border-card absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-md border bg-dark-100 py-1 text-base text-slate-200 shadow-lg focus:outline-none sm:text-sm">
               {options.map((option, i) => (
                 <Listbox.Option
                   key={i}
                   className={({ active }) =>
                     `relative cursor-default select-none px-4 py-2 ${
-                      active ? "bg-dark-500 text-white" : "text-slate-200"
+                      active ? "bg-primary-600/50 text-white" : "text-slate-200"
                     }`
                   }
                   value={option}

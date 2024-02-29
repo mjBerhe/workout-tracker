@@ -37,7 +37,7 @@ const MONTH_TO_NAME = [
 
 const DAYS_OF_WEEK_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-const borderColor = "border-dark-400";
+const borderColor = "border-card";
 
 const isSameDay = (day1: dayjs.Dayjs, day2: dayjs.Dayjs) => {
   if (day1.format("MM/DD/YYYY") === day2.format("MM/DD/YYYY")) {
@@ -197,7 +197,7 @@ export const Calender: React.FC<{
 
         <div
           className={clsx(
-            "flex rounded-lg border border-dark-400 bg-dark-200/80 px-7 py-5 shadow-lg",
+            "border-card flex rounded-lg border bg-dark-200/80 px-7 py-5 shadow-lg",
             showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
           )}
         >
@@ -239,8 +239,8 @@ export const CalendarDay: React.FC<{
         borderColor,
         emptyDays + index === 6 ? "rounded-tr-lg" : "",
         isCondensed && "cursor-pointer text-sm",
-        isCondensed && isSelected && "bg-primary-400/90",
-        isCondensed && !isSelected && " hover:bg-dark-500",
+        isCondensed && isSelected && "bg-primary-500/70",
+        isCondensed && !isSelected && " hover:bg-dark-100/30",
       )}
       onClick={() => isCondensed && selectDay(day)}
     >

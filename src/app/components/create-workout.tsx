@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import dayjs from "dayjs";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, ChevronRight } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 
 import { type NewWorkout, type NewSet, exercise } from "~/server/db/schema";
@@ -34,7 +34,7 @@ const durationOptions: Option[] = [
   { name: "60 min" },
   { name: "75 min" },
   { name: "90 min" },
-  { name: ">90 min" },
+  { name: "> 90 min" },
 ];
 
 type Exercise = {
@@ -57,8 +57,6 @@ const newSetTemplate = {
   repAmount: "",
   weightUnit: "lbs",
 };
-
-const InputDarkClass = "bg-dark-400 text-slate-200";
 
 const exerciseOptions = exercises
   .filter((x) => x.category === "strength")
@@ -192,7 +190,7 @@ export const CreateWorkout: React.FC<{
   };
 
   return (
-    <div className="flex flex-col" ref={parent}>
+    <div className="flex flex-col">
       <div className="flex justify-between">
         <div className="flex flex-col">
           <span className="text-2xl font-semibold text-slate-100">
@@ -222,7 +220,6 @@ export const CreateWorkout: React.FC<{
             placeholder="Workout Name"
             value={workoutName}
             onChange={(e) => setWorkoutName(e.currentTarget.value)}
-            className={InputDarkClass}
           />
         </div>
 
@@ -260,19 +257,21 @@ export const CreateWorkout: React.FC<{
         </div>
       </div>
 
-      {exercises.map((exercise) => (
-        <div key={exercise.id} className="mt-4">
-          <NewExercise
-            exercise={exercise}
-            exerciseOptions={exerciseOptions}
-            removeExercise={removeExercise}
-            updateExercise={updateExercise}
-            addOrRemoveSet={addOrRemoveSet}
-          />
-        </div>
-      ))}
+      <div className="divide-card mt-6 divide-y" ref={parent}>
+        {exercises.map((exercise) => (
+          <div key={exercise.id} className="mt-0">
+            <NewExercise
+              exercise={exercise}
+              exerciseOptions={exerciseOptions}
+              removeExercise={removeExercise}
+              updateExercise={updateExercise}
+              addOrRemoveSet={addOrRemoveSet}
+            />
+          </div>
+        ))}
+      </div>
 
-      <hr className="mt-4 border-t border-dark-500" />
+      <hr className="border-card mt-4 border-t" />
 
       <div className="mt-3 flex w-full justify-evenly">
         <Button
@@ -333,7 +332,7 @@ export const NewExercise: React.FC<{
   };
 
   return (
-    <div className="pt-2">
+    <div className="">
       {isSelectingExericse ? (
         <ComboBox
           options={exerciseOptions}
@@ -343,14 +342,24 @@ export const NewExercise: React.FC<{
       ) : (
         <Disclosure defaultOpen={true}>
           {({ open }) => (
-            <div className="flex flex-col overflow-hidden rounded-lg">
-              <div className="flex w-full items-center gap-x-2 bg-dark-400 px-3 py-2">
+            <div className="flex flex-col overflow-hidden">
+              <div className="flex w-full items-center gap-x-2 bg-dark-100/50 px-3 py-2">
                 <Disclosure.Button>
-                  <ChevronDown
-                    className={`${open && "rotate-180"} h-5 w-5 transform text-slate-200 transition-all duration-75`}
+                  <ChevronRight
+                    className={`${open && "rotate-[90deg]"} h-5 w-5 transform text-slate-200 transition-all duration-75`}
                   />
                 </Disclosure.Button>
-                <div>{name ? name : "Exercise"}</div>
+                <div className="text-sm">{name ? name : "Exercise"}</div>
+                <div className="ml-auto">
+                  <Button
+                    onClick={() => removeExercise(id)}
+                    variant={"icon"}
+                    size={"icon-sm"}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
                 {/* <Disclosure.Button className="flex w-full items-center justify-between rounded-lg border border-primary-600 px-3 py-2 hover:bg-primary-600/5">
                   <span className="font-normal text-slate-200">
                     {name ? name : "Exercise"}
@@ -378,7 +387,7 @@ export const NewExercise: React.FC<{
                 leaveFrom="transform scale-100 opacity-100"
                 leaveTo="transform scale-95 opacity-0"
               >
-                <Disclosure.Panel className="mt-4 flex flex-col">
+                <Disclosure.Panel className="border-card flex flex-col border-l border-r py-4">
                   <div className="flex flex-col gap-y-2" ref={parent}>
                     {sets.map((set, i) => (
                       <div
@@ -391,7 +400,7 @@ export const NewExercise: React.FC<{
                         <div className="ml-4 flex items-center gap-x-2">
                           <Input
                             type="number"
-                            className="h-[30px] w-[80px] bg-dark-400 text-slate-200"
+                            className="h-[30px] w-[80px]"
                             value={set.weightAmount}
                             onChange={(val) =>
                               updateExercise(
@@ -409,7 +418,7 @@ export const NewExercise: React.FC<{
                         <div className="ml-4 flex items-center gap-x-2">
                           <Input
                             type="number"
-                            className="h-[30px] w-[80px] bg-dark-400 text-slate-200"
+                            className="h-[30px] w-[80px]"
                             value={set.repAmount}
                             onChange={(val) =>
                               updateExercise(
