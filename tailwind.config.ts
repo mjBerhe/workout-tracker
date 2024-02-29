@@ -25,6 +25,10 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "fade-out": {
+          "0%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
         "fade-in-delay": {
           "0%": { opacity: "0" },
           "60%": { opacity: "0" },
@@ -37,6 +41,7 @@ export default {
       },
       animation: {
         "fade-in": "fade-in 250ms ease-in-out",
+        "fade-out": "fade-out 250ms ease-in-out",
         "fade-in-delay":
           "1200ms ease-in-out 0s normal forwards 1 fade-in-delay",
         "flex-delay": "flex-delay 0ms forwards 600ms",

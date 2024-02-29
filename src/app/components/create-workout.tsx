@@ -343,9 +343,15 @@ export const NewExercise: React.FC<{
       ) : (
         <Disclosure defaultOpen={true}>
           {({ open }) => (
-            <div className="flex flex-col">
-              <div className="flex w-full items-center">
-                <Disclosure.Button className="flex w-full items-center justify-between rounded-lg border border-primary-600 px-3 py-2 hover:bg-primary-600/5">
+            <div className="flex flex-col overflow-hidden rounded-lg">
+              <div className="flex w-full items-center gap-x-2 bg-dark-400 px-3 py-2">
+                <Disclosure.Button>
+                  <ChevronDown
+                    className={`${open && "rotate-180"} h-5 w-5 transform text-slate-200 transition-all duration-75`}
+                  />
+                </Disclosure.Button>
+                <div>{name ? name : "Exercise"}</div>
+                {/* <Disclosure.Button className="flex w-full items-center justify-between rounded-lg border border-primary-600 px-3 py-2 hover:bg-primary-600/5">
                   <span className="font-normal text-slate-200">
                     {name ? name : "Exercise"}
                   </span>
@@ -361,7 +367,7 @@ export const NewExercise: React.FC<{
                   >
                     <X className="h-5 w-5" />
                   </Button>
-                </div>
+                </div> */}
               </div>
 
               <Transition
