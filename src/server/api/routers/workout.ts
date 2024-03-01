@@ -9,6 +9,7 @@ import {
   workouts,
   exercise as exerciseTable,
   sets as setTable,
+  Workout,
 } from "~/server/db/schema";
 import { db } from "~/server/db";
 
@@ -26,7 +27,7 @@ export const workoutRouter = createTRPCRouter({
           },
         },
       });
-      // console.log(allWorkouts);
+      console.log(allWorkouts[0]?.exercises);
       return { workouts: allWorkouts };
     }),
 

@@ -9,6 +9,7 @@ import { Disclosure, Transition } from "@headlessui/react";
 import {
   type NewWorkout,
   type NewSet,
+  type Exercise,
   exercise,
   Workout,
 } from "~/server/db/schema";
@@ -42,7 +43,7 @@ const durationOptions: Option[] = [
   { name: "> 90 min" },
 ];
 
-type Exercise = {
+type NewExercise = {
   id: number;
   name: string;
   sets: Set[];
@@ -67,26 +68,38 @@ const exerciseOptions = exercises
   .filter((x) => x.category === "strength")
   .map((x) => x.name);
 
-export const CreateWorkout: React.FC<{
+export const EditWorkout: React.FC<{
   userId: string;
   closeWorkout: () => void;
   selectedDay?: dayjs.Dayjs | null;
-}> = ({ userId, closeWorkout, selectedDay }) => {
-  const [workoutName, setWorkoutName] = useState<string>("");
+  selectedWorkout: Workout;
+}> = ({ userId, closeWorkout, selectedDay, selectedWorkout }) => {
+  console.log(selectedWorkout);
+  const [workoutName, setWorkoutName] = useState<string>(
+    selectedWorkout?.name ?? "",
+  );
 
   const [workoutType, setWorkoutType] = useState<Option | undefined>(
-    workoutTypeOptions[0],
+    selectedWorkout?.type
+      ? workoutTypeOptions.find((x) => x.name === selectedWorkout.type)
+      : workoutTypeOptions[0],
   );
 
   const [timeOfDay, setTimeOfDay] = useState<Option | undefined>(
-    timeOfDayOptions[0],
+    selectedWorkout?.time
+      ? timeOfDayOptions.find((x) => x.name === selectedWorkout.time)
+      : timeOfDayOptions[0],
   );
 
   const [duration, setDuration] = useState<Option | undefined>(
-    durationOptions[3],
+    selectedWorkout?.duration
+      ? durationOptions.find((x) => x.name === selectedWorkout.duration)
+      : durationOptions[3],
   );
 
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([
+    ...selectedWorkout.exercises,
+  ]);
 
   const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
 
@@ -141,6 +154,7 @@ export const CreateWorkout: React.FC<{
     }
   };
 
+  // TODO: need to deal with exercise type diffential
   const addOrRemoveSet = (
     exerciseId: number,
     type: "add" | "remove",
@@ -170,35 +184,39 @@ export const CreateWorkout: React.FC<{
     }
   };
 
-  const createWorkout = async () => {
-    const response = await handleCreateWorkout(
-      {
-        userId: userId,
-        name: workoutName,
-        time: timeOfDay?.name,
-        type: workoutType?.name,
-        duration: duration?.name,
-        date: new Date(),
-      },
-      [
-        ...exercises.map((ex) => ({
-          ...ex,
-          sets: [...ex.sets.map((set, i) => ({ ...set, setNumber: i }))],
-        })),
-      ],
-    );
-    if (response.status === "success") {
-      closeWorkout();
-    }
-    console.log(response.status);
+  const editWorkout = async () => {
+    console.log("editing");
   };
+
+  // const createWorkout = async () => {
+  //   const response = await handleCreateWorkout(
+  //     {
+  //       userId: userId,
+  //       name: workoutName,
+  //       time: timeOfDay?.name,
+  //       type: workoutType?.name,
+  //       duration: duration?.name,
+  //       date: new Date(),
+  //     },
+  //     [
+  //       ...exercises.map((ex) => ({
+  //         ...ex,
+  //         sets: [...ex.sets.map((set, i) => ({ ...set, setNumber: i }))],
+  //       })),
+  //     ],
+  //   );
+  //   if (response.status === "success") {
+  //     closeWorkout();
+  //   }
+  //   console.log(response.status);
+  // };
 
   return (
     <div className="flex flex-col">
       <div className="flex justify-between">
         <div className="flex flex-col">
           <span className="text-2xl font-semibold text-slate-100">
-            Add Workout
+            {selectedWorkout ? "Edit Workout" : "Add Workout"}
           </span>
           <span className="text-sm text-primary-600">
             {selectedDay?.format("MM/DD/YYYY")}
@@ -267,7 +285,7 @@ export const CreateWorkout: React.FC<{
       >
         {exercises.map((exercise) => (
           <div key={exercise.id} className="">
-            <NewExercise
+            <EditExercise
               exercise={exercise}
               exerciseOptions={exerciseOptions}
               removeExercise={removeExercise}
@@ -291,7 +309,7 @@ export const CreateWorkout: React.FC<{
           variant={"ghost"}
           size="sm"
           className="h-auto"
-          onClick={createWorkout}
+          onClick={editWorkout}
         >
           Save Workout
         </Button>
@@ -300,7 +318,7 @@ export const CreateWorkout: React.FC<{
   );
 };
 
-export const NewExercise: React.FC<{
+export const EditExercise: React.FC<{
   exercise: Exercise;
   exerciseOptions: string[];
   removeExercise: (exerciseId: number) => void;
@@ -378,24 +396,6 @@ export const NewExercise: React.FC<{
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-
-                {/* <Disclosure.Button className="flex w-full items-center justify-between rounded-lg border border-primary-600 px-3 py-2 hover:bg-primary-600/5">
-                  <span className="font-normal text-slate-200">
-                    {name ? name : "Exercise"}
-                  </span>
-                  <ChevronDown
-                    className={`${open && "rotate-180"} h-5 w-5 transform text-slate-200 transition-all duration-75`}
-                  />
-                </Disclosure.Button>
-                <div className="ml-4">
-                  <Button
-                    onClick={() => removeExercise(id)}
-                    variant={"icon"}
-                    size={"icon"}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div> */}
               </div>
 
               <Transition
@@ -420,7 +420,7 @@ export const NewExercise: React.FC<{
                           <Input
                             type="number"
                             className="h-[30px] w-[80px]"
-                            value={set.weightAmount}
+                            value={set.weightAmount ?? 0}
                             onChange={(val) =>
                               updateExercise(
                                 id,
@@ -438,7 +438,7 @@ export const NewExercise: React.FC<{
                           <Input
                             type="number"
                             className="h-[30px] w-[80px]"
-                            value={set.repAmount}
+                            value={set.repAmount ?? 0}
                             onChange={(val) =>
                               updateExercise(
                                 id,

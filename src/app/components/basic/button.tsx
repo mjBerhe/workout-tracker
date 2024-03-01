@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary: "bg-green-600 text-white hover:bg-green-600/80",
         ghost: "hover:text-primary-600",
         link: "text-primary underline-offset-4 hover:underline",
-        icon: "text-slate-200 hover:bg-dark-200",
+        icon: "text-slate-200 hover:bg-dark-300/50",
         "icon-secondary": "bg-primary-400 hover:bg-primary-400/80",
         disabled: "",
       },

@@ -7,6 +7,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import fuzzysort from "fuzzysort";
 
 export const ComboBox: React.FC<{
+  className?: string;
   options: string[];
   selected: string | undefined;
   setSelected: (string: string) => void;
@@ -56,7 +57,7 @@ export const ComboBox: React.FC<{
             leaveTo="opacity-0"
             afterLeave={() => setQuery("")}
           >
-            <Combobox.Options className="border-card absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-dark-100 py-1 text-base shadow-lg focus:outline-none sm:text-sm">
+            <Combobox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-card bg-dark-100 py-1 text-base shadow-lg focus:outline-none sm:text-sm">
               {filteredOptions.length === 0 && query !== "" ? (
                 <div className="relative cursor-default select-none px-4 py-2 text-gray-700">
                   Nothing found.

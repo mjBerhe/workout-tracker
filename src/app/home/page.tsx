@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { CreateWorkout } from "../components/create-workout";
-import { NewWorkout } from "~/server/db/schema";
+import { Exercise, NewWorkout, Workout } from "~/server/db/schema";
 import { Calender } from "../components/calendar";
 
 export default async function Home() {

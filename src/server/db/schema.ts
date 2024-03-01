@@ -55,7 +55,7 @@ export const workouts = createTable(
   }),
 );
 
-export type Workout = typeof workouts.$inferSelect;
+export type Workout = typeof workouts.$inferSelect & { exercises: Exercise[] };
 export type NewWorkout = typeof workouts.$inferInsert;
 
 export const exercise = createTable(
@@ -71,8 +71,8 @@ export const exercise = createTable(
   }),
 );
 
-export type Exercise = typeof workouts.$inferSelect;
-export type NewExercise = typeof workouts.$inferInsert;
+export type Exercise = typeof exercise.$inferSelect & { sets: Set[] };
+export type NewExercise = typeof exercise.$inferInsert;
 
 export const sets = createTable(
   "sets",

@@ -4,9 +4,10 @@ import { useState, useRef } from "react";
 import { useHover } from "usehooks-ts";
 import dayjs from "dayjs";
 import clsx from "clsx";
-import type { Workout } from "~/server/db/schema";
+import type { Exercise, Set, Workout } from "~/server/db/schema";
 
 import { CreateWorkout } from "~/app/components/create-workout";
+import { EditWorkout } from "./edit-workout";
 import { Button } from "~/app/components/basic/button";
 import { ChevronRight, ChevronLeft, Plus } from "lucide-react";
 
@@ -50,7 +51,6 @@ export const Calender: React.FC<{
   userId: string;
   currentWorkouts: Workout[];
 }> = ({ userId, currentWorkouts }) => {
-  console.log(currentWorkouts);
   const month = dayjs().month();
   const year = dayjs().year();
 
@@ -99,18 +99,31 @@ export const Calender: React.FC<{
   };
 
   const [showAddWorkout, setShowAddingWorkout] = useState<boolean>(false);
+  const [showEditWorkout, setShowEditWorkout] = useState<boolean>(false);
   const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
 
   const handleSelectDay = (day: dayjs.Dayjs) => {
-    if (!showAddWorkout) {
-      setShowAddingWorkout(true);
+    if (!showEditWorkout) {
+      if (!showAddWorkout) {
+        setShowAddingWorkout(true);
+      }
+      setSelectedDay(day);
+      setSelectedWorkout(null);
     }
+  };
+
+  const handleOpenWorkout = (day: dayjs.Dayjs, workout: Workout) => {
     setSelectedDay(day);
+    setSelectedWorkout(workout);
+    setShowEditWorkout(true);
   };
 
   const handleCloseWorkout = () => {
     setSelectedDay(null);
+    setSelectedWorkout(null);
     setShowAddingWorkout(false);
+    setShowEditWorkout(false);
   };
 
   return (
@@ -135,7 +148,7 @@ export const Calender: React.FC<{
       <div
         className={clsx(
           "mt-8 w-full",
-          showAddWorkout ? "animate-flex-delay gap-x-8" : "",
+          showAddWorkout || showEditWorkout ? "animate-flex-delay gap-x-8" : "",
         )}
       >
         <div
@@ -145,7 +158,9 @@ export const Calender: React.FC<{
               ? "grid-rows-[repeat(5,_1fr)]"
               : "grid-rows-[repeat(6,_1fr)]",
             borderColor,
-            showAddWorkout ? "h-[400px] w-1/2" : "h-[750px] w-full",
+            showAddWorkout || showEditWorkout
+              ? "h-[400px] w-1/2"
+              : "h-[750px] w-full",
           )}
         >
           {Array(emptyDays)
@@ -171,12 +186,9 @@ export const Calender: React.FC<{
               index={i}
               emptyDays={emptyDays}
               selectDay={handleSelectDay}
-              isSelected={
-                selectedDay?.date() === day.date() &&
-                selectedDay.month() === day.month() &&
-                selectedDay.year() === day.year()
-              }
-              isCondensed={showAddWorkout}
+              selectWorkout={handleOpenWorkout}
+              isSelected={selectedDay ? isSameDay(selectedDay, day) : false}
+              isCondensed={showAddWorkout || showEditWorkout}
               workouts={currentWorkouts.filter((x) =>
                 isSameDay(dayjs(x.date), day),
               )}
@@ -197,7 +209,7 @@ export const Calender: React.FC<{
 
         <div
           className={clsx(
-            "border-card flex rounded-lg border bg-dark-200/80 px-7 py-5 shadow-lg",
+            "flex rounded-lg border border-card bg-dark-200/80 px-7 py-5 shadow-lg",
             showAddWorkout ? "animate-fade-in-delay" : "hidden opacity-0",
           )}
         >
@@ -206,6 +218,24 @@ export const Calender: React.FC<{
             closeWorkout={handleCloseWorkout}
             selectedDay={selectedDay}
           />
+        </div>
+
+        <div
+          className={clsx(
+            "flex rounded-lg border border-card bg-dark-200/80 px-7 py-5 shadow-lg",
+            showEditWorkout && selectedWorkout
+              ? "animate-fade-in-delay"
+              : "hidden opacity-0",
+          )}
+        >
+          {selectedWorkout && (
+            <EditWorkout
+              userId={userId}
+              closeWorkout={handleCloseWorkout}
+              selectedDay={selectedDay}
+              selectedWorkout={selectedWorkout}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -217,6 +247,7 @@ export const CalendarDay: React.FC<{
   emptyDays: number;
   index: number;
   selectDay: (day: dayjs.Dayjs) => void;
+  selectWorkout: (day: dayjs.Dayjs, workout: Workout) => void;
   isSelected: boolean;
   isCondensed: boolean;
   workouts: Workout[];
@@ -225,6 +256,7 @@ export const CalendarDay: React.FC<{
   emptyDays,
   index,
   selectDay,
+  selectWorkout,
   isSelected,
   isCondensed,
   workouts,
@@ -257,7 +289,11 @@ export const CalendarDay: React.FC<{
         {workouts?.length > 0 && (
           <div className="flex h-1/2 w-full items-center justify-center">
             {workouts.map((x) => (
-              <div key={x.id} className="h-3 w-3 rounded-full bg-white"></div>
+              <div
+                key={x.id}
+                className="h-3 w-3 cursor-pointer rounded-full bg-white"
+                onClick={() => selectWorkout(day, x)}
+              ></div>
             ))}
           </div>
         )}
