@@ -8,6 +8,7 @@ import fuzzysort from "fuzzysort";
 
 export const ComboBox: React.FC<{
   className?: string;
+  placeholder?: string;
   options: string[];
   selected: string | undefined;
   setSelected: (string: string) => void;
@@ -22,7 +23,7 @@ export const ComboBox: React.FC<{
 
   return (
     <div className="w-full">
-      <Combobox value={selected} onChange={setSelected}>
+      <Combobox value={selected} onChange={setSelected} nullable as={"div"}>
         <div className="relative">
           <div
             className={cn(
@@ -39,6 +40,7 @@ export const ComboBox: React.FC<{
                   onClick={(e) => {
                     if (open) e.stopPropagation();
                   }}
+                  placeholder={props.placeholder}
                 />
               )}
             </Combobox.Button>

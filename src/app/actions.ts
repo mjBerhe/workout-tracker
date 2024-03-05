@@ -1,9 +1,11 @@
 "use server";
 
-import { api } from "~/trpc/server";
+import { api } from "~/trpc/react";
 import type { NewWorkout, NewExercise, NewSet } from "~/server/db/schema";
+import { create } from "domain";
 
-const createWorkout = api.workout.createWorkout;
+// const createWorkout = api.workout.createWorkout;
+const createWorkout = api.workout.createWorkout.useMutation();
 
 export const handleCreateWorkout = async (
   workoutData: {
@@ -26,8 +28,9 @@ export const handleCreateWorkout = async (
     }[];
   }[],
 ) => {
-  return await createWorkout.mutate({
+  const mutation = createWorkout.mutate({
     ...workoutData,
     exercises: [...exercises],
   });
+  return createWorkout.data;
 };

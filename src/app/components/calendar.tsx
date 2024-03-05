@@ -2,7 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useHover } from "usehooks-ts";
+import { api } from "~/trpc/react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import clsx from "clsx";
 import type { Exercise, Set, Workout } from "~/server/db/schema";
 
@@ -40,17 +42,34 @@ const DAYS_OF_WEEK_SHORT = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const borderColor = "border-card";
 
+dayjs.extend(utc);
+
 const isSameDay = (day1: dayjs.Dayjs, day2: dayjs.Dayjs) => {
-  if (day1.format("MM/DD/YYYY") === day2.format("MM/DD/YYYY")) {
+  if (day1.utc().format("MM/DD/YYYY") === day2.utc().format("MM/DD/YYYY")) {
     return true;
   }
   return false;
 };
 
+const getDaysOfMonth = (currentDay: dayjs.Dayjs) => {
+  const firstDOM = currentDay.startOf("month");
+  const daysAmount = currentDay.daysInMonth();
+
+  const days = Array(daysAmount)
+    .fill(null)
+    .map((_, i) => (i == 0 ? firstDOM : firstDOM.add(i, "day")));
+  return days;
+};
+
 export const Calender: React.FC<{
   userId: string;
-  currentWorkouts: Workout[];
-}> = ({ userId, currentWorkouts }) => {
+}> = ({ userId }) => {
+  const { data } = api.workout.getAllWorkouts.useQuery(
+    { userId: userId },
+    { refetchOnMount: true },
+  );
+  const currentWorkouts = data?.workouts ?? [];
+
   const month = dayjs().month();
   const year = dayjs().year();
 
@@ -62,17 +81,7 @@ export const Calender: React.FC<{
     .set("month", currentMonth)
     .set("year", currentYear);
 
-  const getDaysOfMonth = () => {
-    const firstDOM = currentDay.startOf("month");
-    const daysAmount = currentDay.daysInMonth();
-
-    const days = Array(daysAmount)
-      .fill(null)
-      .map((_, i) => (i == 0 ? firstDOM : firstDOM.add(i, "day")));
-    return days;
-  };
-
-  const currentDaysOfMonth = getDaysOfMonth();
+  const currentDaysOfMonth = getDaysOfMonth(currentDay);
   const emptyDays = currentDay.startOf("month").day();
   const fillerDays = 6 - currentDay.endOf("month").day();
 
@@ -189,7 +198,7 @@ export const Calender: React.FC<{
               selectWorkout={handleOpenWorkout}
               isSelected={selectedDay ? isSameDay(selectedDay, day) : false}
               isCondensed={showAddWorkout || showEditWorkout}
-              workouts={currentWorkouts.filter((x) =>
+              workouts={currentWorkouts?.filter((x) =>
                 isSameDay(dayjs(x.date), day),
               )}
             />

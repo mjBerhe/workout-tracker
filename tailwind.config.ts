@@ -8,7 +8,6 @@ export default {
       colors: {
         button: "#5f43b2",
         "button-2": "#BB86FC",
-        bg: "#121212",
         "dark-100": "#0a0118",
         "dark-200": "#221e2d",
         "dark-300": "#393643",

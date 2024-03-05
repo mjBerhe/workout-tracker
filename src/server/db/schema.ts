@@ -64,7 +64,7 @@ export const exercise = createTable(
     id: serial("id").primaryKey(),
     workoutId: varchar("workoutId", { length: 256 }).notNull(),
     name: varchar("name", { length: 256 }).notNull(),
-    date: date("date"),
+    date: date("date").notNull(),
   },
   (x) => ({
     workoutIdIdx: index("workoutId_idx").on(x.workoutId),
@@ -79,10 +79,10 @@ export const sets = createTable(
   {
     id: serial("id").primaryKey(),
     exerciseId: varchar("exerciseId", { length: 256 }),
-    setNumber: int("setNumber"),
-    weightAmount: int("weightAmount"),
-    weightUnit: varchar("weightUnit", { length: 256 }),
-    repAmount: int("repAmount"),
+    setNumber: int("setNumber").notNull(),
+    weightAmount: int("weightAmount").notNull(),
+    weightUnit: varchar("weightUnit", { length: 256 }).notNull(),
+    repAmount: int("repAmount").notNull(),
   },
   (x) => ({
     exerciseIdIdx: index("exerciseId_idx").on(x.exerciseId),
@@ -91,23 +91,6 @@ export const sets = createTable(
 
 export type Set = typeof sets.$inferSelect;
 export type NewSet = typeof sets.$inferInsert;
-
-// export const posts = createTable(
-//   "post",
-//   {
-//     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-//     name: varchar("name", { length: 256 }),
-//     createdById: varchar("createdById", { length: 255 }).notNull(),
-//     createdAt: timestamp("created_at")
-//       .default(sql`CURRENT_TIMESTAMP`)
-//       .notNull(),
-//     updatedAt: timestamp("updatedAt").onUpdateNow(),
-//   },
-//   (example) => ({
-//     createdByIdIdx: index("createdById_idx").on(example.createdById),
-//     nameIndex: index("name_idx").on(example.name),
-//   }),
-// );
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

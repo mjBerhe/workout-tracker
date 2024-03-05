@@ -6,13 +6,7 @@ import dayjs from "dayjs";
 import { X, Redo, ChevronRight } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 
-import {
-  type NewWorkout,
-  type NewSet,
-  type Exercise,
-  exercise,
-  Workout,
-} from "~/server/db/schema";
+import { Workout } from "~/server/db/schema";
 import { handleCreateWorkout } from "~/app/actions";
 import { exercises } from "~/const/exercises";
 
@@ -46,10 +40,10 @@ const durationOptions: Option[] = [
 type NewExercise = {
   id: number;
   name: string;
-  sets: Set[];
+  sets: NewSet[];
 };
 
-type Set = {
+type NewSet = {
   id: number;
   setNumber: number;
   weightAmount: string;
@@ -97,8 +91,20 @@ export const EditWorkout: React.FC<{
       : durationOptions[3],
   );
 
-  const [exercises, setExercises] = useState<Exercise[]>([
-    ...selectedWorkout.exercises,
+  const [exercises, setExercises] = useState<NewExercise[]>([
+    ...selectedWorkout.exercises.map((ex) => ({
+      id: ex.id,
+      name: ex.name,
+      sets: [
+        ...ex.sets.map((set) => ({
+          id: set.id,
+          setNumber: set.setNumber,
+          weightAmount: set.weightAmount.toString(),
+          weightUnit: set.weightUnit,
+          repAmount: set.repAmount.toString(),
+        })),
+      ],
+    })),
   ]);
 
   const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
@@ -139,7 +145,12 @@ export const EditWorkout: React.FC<{
       );
       setExercises(newExercises);
     }
-    if (key === "sets" && typeof setId === "number" && setKey && setValue) {
+    if (
+      key === "sets" &&
+      typeof setId === "number" &&
+      setKey &&
+      setValue !== undefined
+    ) {
       const exercise = exercises.find((x) => x.id === exerciseId);
       if (exercise) {
         const newSetInfo = exercise?.sets.map((y) =>
@@ -161,7 +172,7 @@ export const EditWorkout: React.FC<{
     setId?: number,
   ) => {
     const exercise = exercises.find((x) => x.id === exerciseId);
-    let newSetInfo: Set[] = [];
+    let newSetInfo: NewSet[] = [];
     if (exercise) {
       if (type === "add") {
         newSetInfo = [
@@ -184,6 +195,7 @@ export const EditWorkout: React.FC<{
     }
   };
 
+  // when submitting edit workout
   const editWorkout = async () => {
     console.log("editing");
   };
@@ -319,7 +331,7 @@ export const EditWorkout: React.FC<{
 };
 
 export const EditExercise: React.FC<{
-  exercise: Exercise;
+  exercise: NewExercise;
   exerciseOptions: string[];
   removeExercise: (exerciseId: number) => void;
   updateExercise: (
@@ -344,8 +356,10 @@ export const EditExercise: React.FC<{
 }) => {
   const { id, name, sets } = exercise;
 
-  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
-  const [isSelectingExericse, setIsSelectingExercise] = useState<boolean>(true);
+  const [parent] = useAutoAnimate(/* optional config */);
+  const [parent2] = useAutoAnimate(/* optional config */);
+  const [isSelectingExericse, setIsSelectingExercise] =
+    useState<boolean>(false);
 
   const handleUpdateExercise = (exerciseName: string) => {
     if (isSelectingExericse === true) {
@@ -364,14 +378,15 @@ export const EditExercise: React.FC<{
         <div className="my-2">
           <ComboBox
             options={exerciseOptions}
-            selected={name ? name : "Search Exercise"}
+            selected={name ? name : ""}
             setSelected={handleUpdateExercise}
+            placeholder="Search Exercise"
           />
         </div>
       ) : (
-        <Disclosure defaultOpen={true}>
+        <Disclosure defaultOpen={false}>
           {({ open }) => (
-            <div className="flex flex-col overflow-hidden">
+            <div className="flex flex-col overflow-hidden" ref={parent2}>
               <div className="flex w-full items-center gap-x-2 bg-dark-100/50 px-3 py-2">
                 <Disclosure.Button className="flex gap-x-2">
                   <ChevronRight
@@ -398,86 +413,77 @@ export const EditExercise: React.FC<{
                 </div>
               </div>
 
-              <Transition
-                enter="transition duration-100 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0"
-              >
-                <Disclosure.Panel className="flex flex-col border-l border-r border-card py-4">
-                  <div className="flex flex-col gap-y-2" ref={parent}>
-                    {sets.map((set, i) => (
-                      <div
-                        key={set.id}
-                        className="flex items-center justify-start px-8 text-slate-200"
-                      >
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-400/80 text-sm text-white">
-                          {i + 1}
-                        </div>
-                        <div className="ml-4 flex items-center gap-x-2">
-                          <Input
-                            type="number"
-                            className="h-[30px] w-[80px]"
-                            value={set.weightAmount ?? 0}
-                            onChange={(val) =>
-                              updateExercise(
-                                id,
-                                "sets",
-                                "",
-                                set.id,
-                                "weightAmount",
-                                val.currentTarget.value,
-                              )
-                            }
-                          />
-                          <span className="text-sm">lbs</span>
-                        </div>
-                        <div className="ml-4 flex items-center gap-x-2">
-                          <Input
-                            type="number"
-                            className="h-[30px] w-[80px]"
-                            value={set.repAmount ?? 0}
-                            onChange={(val) =>
-                              updateExercise(
-                                id,
-                                "sets",
-                                "",
-                                set.id,
-                                "repAmount",
-                                val.currentTarget.value,
-                              )
-                            }
-                          />
-                          <span className="text-sm">reps</span>
-                        </div>
-
-                        <div className="ml-auto flex">
-                          <Button
-                            onClick={() => addOrRemoveSet(id, "remove", set.id)}
-                            variant={"icon"}
-                            size={"icon"}
-                          >
-                            <X className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-3 flex w-full justify-center">
-                    <Button
-                      variant={"ghost"}
-                      size="sm"
-                      className="h-auto"
-                      onClick={() => addOrRemoveSet(id, "add")}
+              <Disclosure.Panel className="flex flex-col border-l border-r border-card py-4">
+                <div className="flex flex-col gap-y-2" ref={parent}>
+                  {sets.map((set, i) => (
+                    <div
+                      key={set.id}
+                      className="flex items-center justify-start px-8 text-slate-200"
                     >
-                      Add Set
-                    </Button>
-                  </div>
-                </Disclosure.Panel>
-              </Transition>
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-400/80 text-sm text-white">
+                        {i + 1}
+                      </div>
+                      <div className="ml-4 flex items-center gap-x-2">
+                        <Input
+                          type="number"
+                          className="h-[30px] w-[80px]"
+                          value={set.weightAmount ?? 0}
+                          onChange={(val) =>
+                            updateExercise(
+                              id,
+                              "sets",
+                              "",
+                              set.id,
+                              "weightAmount",
+                              val.currentTarget.value,
+                            )
+                          }
+                        />
+                        <span className="text-sm">lbs</span>
+                      </div>
+                      <div className="ml-4 flex items-center gap-x-2">
+                        <Input
+                          type="number"
+                          className="h-[30px] w-[80px]"
+                          value={set.repAmount ?? 0}
+                          onChange={(val) =>
+                            updateExercise(
+                              id,
+                              "sets",
+                              "",
+                              set.id,
+                              "repAmount",
+                              val.currentTarget.value,
+                            )
+                          }
+                        />
+                        <span className="text-sm">reps</span>
+                      </div>
+
+                      <div className="ml-auto flex">
+                        <Button
+                          onClick={() => addOrRemoveSet(id, "remove", set.id)}
+                          variant={"icon"}
+                          size={"icon"}
+                        >
+                          <X className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-3 flex w-full justify-center">
+                  <Button
+                    variant={"ghost"}
+                    size="sm"
+                    className="h-auto"
+                    onClick={() => addOrRemoveSet(id, "add")}
+                  >
+                    Add Set
+                  </Button>
+                </div>
+              </Disclosure.Panel>
             </div>
           )}
         </Disclosure>

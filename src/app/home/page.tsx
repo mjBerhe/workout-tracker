@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/trpc/server";
 import { CreateWorkout } from "../components/create-workout";
 import { Exercise, NewWorkout, Workout } from "~/server/db/schema";
 import { Calender } from "../components/calendar";
@@ -10,10 +9,6 @@ export default async function Home() {
   if (!session) {
     redirect("/");
   }
-
-  const workouts = await api.workout.getAllWorkouts.query({
-    userId: session.user.id,
-  });
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-dark-100 pb-36 text-white">
@@ -26,10 +21,7 @@ export default async function Home() {
           <span className="text-4xl font-semibold">Workout Tracker</span>
         </div>
         <div className="mt-[48px]">
-          <Calender
-            userId={session.user.id}
-            currentWorkouts={workouts.workouts}
-          />
+          <Calender userId={session.user.id} />
         </div>
       </div>
     </main>
