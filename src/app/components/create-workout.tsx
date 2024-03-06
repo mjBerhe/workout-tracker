@@ -66,10 +66,14 @@ export const CreateWorkout: React.FC<{
   userId: string;
   closeWorkout: () => void;
   selectedDay?: dayjs.Dayjs | null;
-}> = ({ userId, closeWorkout, selectedDay }) => {
+  refetch: () => void;
+}> = ({ userId, closeWorkout, selectedDay, refetch }) => {
   // mutation for creating a full workout
   const { mutate } = api.workout.createWorkout.useMutation({
-    onSuccess: () => closeWorkout(),
+    onSuccess: () => {
+      closeWorkout();
+      refetch();
+    },
   });
 
   const [workoutName, setWorkoutName] = useState<string>("");

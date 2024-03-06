@@ -8,6 +8,7 @@ import utc from "dayjs/plugin/utc";
 import clsx from "clsx";
 import type { Exercise, Set, Workout } from "~/server/db/schema";
 
+import { CalendarDay } from "./calendar-day";
 import { CreateWorkout } from "~/app/components/create-workout";
 import { EditWorkout } from "./edit-workout";
 import { Button } from "~/app/components/basic/button";
@@ -64,11 +65,14 @@ const getDaysOfMonth = (currentDay: dayjs.Dayjs) => {
 export const Calender: React.FC<{
   userId: string;
 }> = ({ userId }) => {
-  const { data } = api.workout.getAllWorkouts.useQuery(
-    { userId: userId },
-    { refetchOnMount: true },
-  );
-  const currentWorkouts = data?.workouts ?? [];
+  const getWorkoutsQuery = api.workout.getAllWorkouts.useQuery({
+    userId: userId,
+  });
+  const currentWorkouts = getWorkoutsQuery.data?.workouts ?? [];
+
+  const refetch = async () => {
+    await getWorkoutsQuery.refetch();
+  };
 
   const month = dayjs().month();
   const year = dayjs().year();
@@ -198,6 +202,7 @@ export const Calender: React.FC<{
               selectWorkout={handleOpenWorkout}
               isSelected={selectedDay ? isSameDay(selectedDay, day) : false}
               isCondensed={showAddWorkout || showEditWorkout}
+              selectedWorkout={selectedWorkout}
               workouts={currentWorkouts?.filter((x) =>
                 isSameDay(dayjs(x.date), day),
               )}
@@ -226,6 +231,7 @@ export const Calender: React.FC<{
             userId={userId}
             closeWorkout={handleCloseWorkout}
             selectedDay={selectedDay}
+            refetch={refetch}
           />
         </div>
 
@@ -244,85 +250,6 @@ export const Calender: React.FC<{
               selectedDay={selectedDay}
               selectedWorkout={selectedWorkout}
             />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const CalendarDay: React.FC<{
-  day: dayjs.Dayjs;
-  emptyDays: number;
-  index: number;
-  selectDay: (day: dayjs.Dayjs) => void;
-  selectWorkout: (day: dayjs.Dayjs, workout: Workout) => void;
-  isSelected: boolean;
-  isCondensed: boolean;
-  workouts: Workout[];
-}> = ({
-  day,
-  emptyDays,
-  index,
-  selectDay,
-  selectWorkout,
-  isSelected,
-  isCondensed,
-  workouts,
-}) => {
-  const hoverRef = useRef(null);
-  const isHover = useHover(hoverRef);
-
-  return (
-    <div
-      className={clsx(
-        "flex flex-col items-center border-b-[1px] border-r-[1px] p-3",
-        borderColor,
-        emptyDays + index === 6 ? "rounded-tr-lg" : "",
-        isCondensed && "cursor-pointer text-sm",
-        isCondensed && isSelected && "bg-primary-500/70",
-        isCondensed && !isSelected && " hover:bg-dark-100/30",
-      )}
-      onClick={() => isCondensed && selectDay(day)}
-    >
-      <span className="font-semibold text-primary-600">
-        {day.date() < 8 - emptyDays && DAYS_OF_WEEK_SHORT[day.day()]}
-      </span>
-      <div
-        className="mt-1 cursor-pointer text-slate-300"
-        onClick={() => selectDay(day)}
-      >
-        {day.date()}
-      </div>
-      <div className="flex h-full w-full flex-col">
-        {workouts?.length > 0 && (
-          <div className="flex h-1/2 w-full items-center justify-center">
-            {workouts.map((x) => (
-              <div
-                key={x.id}
-                className="h-3 w-3 cursor-pointer rounded-full bg-white"
-                onClick={() => selectWorkout(day, x)}
-              ></div>
-            ))}
-          </div>
-        )}
-
-        <div className="h-full w-full" ref={hoverRef}>
-          {isHover && !isCondensed && (
-            <div
-              className={clsx(
-                "flex h-full items-center justify-center",
-                isHover ? "animate-fade-in" : "animate-fade-out",
-              )}
-            >
-              <Button
-                variant={"icon-secondary"}
-                size={"icon"}
-                onClick={() => selectDay(day)}
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-            </div>
           )}
         </div>
       </div>
