@@ -139,6 +139,13 @@ export const Calender: React.FC<{
     setShowEditWorkout(false);
   };
 
+  const handleEditWorkout = (key: keyof Workout, value: string) => {
+    if (selectedWorkout) {
+      const workout = selectedWorkout;
+      setSelectedWorkout({ ...workout, [key]: value });
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center">
@@ -249,6 +256,7 @@ export const Calender: React.FC<{
               closeWorkout={handleCloseWorkout}
               selectedDay={selectedDay}
               selectedWorkout={selectedWorkout}
+              handleEditWorkout={handleEditWorkout}
             />
           )}
         </div>

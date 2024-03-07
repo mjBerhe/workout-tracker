@@ -67,30 +67,26 @@ export const EditWorkout: React.FC<{
   closeWorkout: () => void;
   selectedDay?: dayjs.Dayjs | null;
   selectedWorkout: Workout;
-}> = ({ userId, closeWorkout, selectedDay, selectedWorkout }) => {
-  console.log(selectedWorkout);
-  const [workoutName, setWorkoutName] = useState<string>(
-    selectedWorkout?.name ?? "",
-  );
+  handleEditWorkout: (key: keyof Workout, value: string) => void;
+}> = ({
+  userId,
+  closeWorkout,
+  selectedDay,
+  selectedWorkout,
+  handleEditWorkout,
+}) => {
+  const workoutName = selectedWorkout.name ?? "";
+  const workoutType =
+    workoutTypeOptions.find((x) => x.name === selectedWorkout.type) ??
+    workoutTypeOptions[0];
+  const timeOfDay =
+    timeOfDayOptions.find((x) => x.name === selectedWorkout.time) ??
+    timeOfDayOptions[0];
+  const duration =
+    durationOptions.find((x) => x.name === selectedWorkout.duration) ??
+    durationOptions[3];
 
-  const [workoutType, setWorkoutType] = useState<Option | undefined>(
-    selectedWorkout?.type
-      ? workoutTypeOptions.find((x) => x.name === selectedWorkout.type)
-      : workoutTypeOptions[0],
-  );
-
-  const [timeOfDay, setTimeOfDay] = useState<Option | undefined>(
-    selectedWorkout?.time
-      ? timeOfDayOptions.find((x) => x.name === selectedWorkout.time)
-      : timeOfDayOptions[0],
-  );
-
-  const [duration, setDuration] = useState<Option | undefined>(
-    selectedWorkout?.duration
-      ? durationOptions.find((x) => x.name === selectedWorkout.duration)
-      : durationOptions[3],
-  );
-
+  // need to move exercises, because its not updating when changing workouts
   const [exercises, setExercises] = useState<NewExercise[]>([
     ...selectedWorkout.exercises.map((ex) => ({
       id: ex.id,
@@ -107,7 +103,7 @@ export const EditWorkout: React.FC<{
     })),
   ]);
 
-  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
+  const [parent] = useAutoAnimate(/* optional config */);
 
   const addNewExercise = () => {
     setExercises((prev) => [
@@ -253,7 +249,7 @@ export const EditWorkout: React.FC<{
           <Input
             placeholder="Workout Name"
             value={workoutName}
-            onChange={(e) => setWorkoutName(e.currentTarget.value)}
+            onChange={(e) => handleEditWorkout("name", e.currentTarget.value)}
           />
         </div>
 
@@ -264,7 +260,7 @@ export const EditWorkout: React.FC<{
           <Select
             options={workoutTypeOptions}
             selected={workoutType}
-            setSelected={(e) => setWorkoutType(e)}
+            setSelected={(e) => handleEditWorkout("type", e.name)}
           />
         </div>
 
@@ -275,7 +271,7 @@ export const EditWorkout: React.FC<{
           <Select
             options={timeOfDayOptions}
             selected={timeOfDay}
-            setSelected={(e) => setTimeOfDay(e)}
+            setSelected={(e) => handleEditWorkout("time", e.name)}
           />
         </div>
 
@@ -286,7 +282,7 @@ export const EditWorkout: React.FC<{
           <Select
             options={durationOptions}
             selected={duration}
-            setSelected={(e) => setDuration(e)}
+            setSelected={(e) => handleEditWorkout("duration", e.name)}
           />
         </div>
       </div>
