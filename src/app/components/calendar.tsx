@@ -45,6 +45,20 @@ const borderColor = "border-card";
 
 dayjs.extend(utc);
 
+export type NewExercise = {
+  id: number;
+  name: string;
+  sets: NewSet[];
+};
+
+export type NewSet = {
+  id: number;
+  setNumber: number;
+  weightAmount: string | number;
+  weightUnit: string;
+  repAmount: string | number;
+};
+
 const isSameDay = (day1: dayjs.Dayjs, day2: dayjs.Dayjs) => {
   if (day1.utc().format("MM/DD/YYYY") === day2.utc().format("MM/DD/YYYY")) {
     return true;
@@ -115,6 +129,7 @@ export const Calender: React.FC<{
   const [showEditWorkout, setShowEditWorkout] = useState<boolean>(false);
   const [selectedDay, setSelectedDay] = useState<dayjs.Dayjs | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
+  const [exercises, setExercises] = useState<NewExercise[]>([]);
 
   const handleSelectDay = (day: dayjs.Dayjs) => {
     if (!showEditWorkout) {
@@ -129,12 +144,16 @@ export const Calender: React.FC<{
   const handleOpenWorkout = (day: dayjs.Dayjs, workout: Workout) => {
     setSelectedDay(day);
     setSelectedWorkout(workout);
+    setExercises(workout.exercises);
+
     setShowEditWorkout(true);
   };
 
   const handleCloseWorkout = () => {
     setSelectedDay(null);
     setSelectedWorkout(null);
+    setExercises([]);
+
     setShowAddingWorkout(false);
     setShowEditWorkout(false);
   };
@@ -144,6 +163,10 @@ export const Calender: React.FC<{
       const workout = selectedWorkout;
       setSelectedWorkout({ ...workout, [key]: value });
     }
+  };
+
+  const handleEditExercises = (exercises: NewExercise[]) => {
+    setExercises(exercises);
   };
 
   return (
@@ -257,6 +280,8 @@ export const Calender: React.FC<{
               selectedDay={selectedDay}
               selectedWorkout={selectedWorkout}
               handleEditWorkout={handleEditWorkout}
+              selectedExercises={exercises}
+              handleEditExercises={handleEditExercises}
             />
           )}
         </div>

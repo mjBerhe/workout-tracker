@@ -6,9 +6,10 @@ import dayjs from "dayjs";
 import { X, Redo, ChevronRight } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 
-import { Workout } from "~/server/db/schema";
+import { Exercise, Workout } from "~/server/db/schema";
 import { handleCreateWorkout } from "~/app/actions";
 import { exercises } from "~/const/exercises";
+import type { NewExercise, NewSet } from "./calendar";
 
 import { Input } from "~/app/components/input";
 import { Select, type Option } from "~/app/components/basic/select";
@@ -37,20 +38,6 @@ const durationOptions: Option[] = [
   { name: "> 90 min" },
 ];
 
-type NewExercise = {
-  id: number;
-  name: string;
-  sets: NewSet[];
-};
-
-type NewSet = {
-  id: number;
-  setNumber: number;
-  weightAmount: string;
-  weightUnit: string;
-  repAmount: string;
-};
-
 const newSetTemplate = {
   setNumber: 0,
   weightAmount: "",
@@ -68,12 +55,16 @@ export const EditWorkout: React.FC<{
   selectedDay?: dayjs.Dayjs | null;
   selectedWorkout: Workout;
   handleEditWorkout: (key: keyof Workout, value: string) => void;
+  selectedExercises: NewExercise[];
+  handleEditExercises: (exercises: NewExercise[]) => void;
 }> = ({
   userId,
   closeWorkout,
   selectedDay,
   selectedWorkout,
   handleEditWorkout,
+  selectedExercises,
+  handleEditExercises,
 }) => {
   const workoutName = selectedWorkout.name ?? "";
   const workoutType =
@@ -86,28 +77,13 @@ export const EditWorkout: React.FC<{
     durationOptions.find((x) => x.name === selectedWorkout.duration) ??
     durationOptions[3];
 
-  // need to move exercises, because its not updating when changing workouts
-  const [exercises, setExercises] = useState<NewExercise[]>([
-    ...selectedWorkout.exercises.map((ex) => ({
-      id: ex.id,
-      name: ex.name,
-      sets: [
-        ...ex.sets.map((set) => ({
-          id: set.id,
-          setNumber: set.setNumber,
-          weightAmount: set.weightAmount.toString(),
-          weightUnit: set.weightUnit,
-          repAmount: set.repAmount.toString(),
-        })),
-      ],
-    })),
-  ]);
+  const exercises = selectedExercises;
 
   const [parent] = useAutoAnimate(/* optional config */);
 
   const addNewExercise = () => {
-    setExercises((prev) => [
-      ...prev,
+    const newExercises = [
+      ...exercises,
       {
         id: dayjs().valueOf(),
         name: "",
@@ -118,12 +94,14 @@ export const EditWorkout: React.FC<{
           },
         ],
       },
-    ]);
+    ];
+    handleEditExercises(newExercises);
   };
 
   const removeExercise = (exerciseId: number) => {
     if (exercises.length > 1) {
-      setExercises((prev) => [...prev.filter((x) => x.id !== exerciseId)]);
+      const newExercises = [...exercises.filter((x) => x.id !== exerciseId)];
+      handleEditExercises(newExercises);
     }
   };
 
@@ -139,7 +117,7 @@ export const EditWorkout: React.FC<{
       const newExercises = exercises.map((x) =>
         x.id === exerciseId ? { ...x, [key]: value } : { ...x },
       );
-      setExercises(newExercises);
+      handleEditExercises(newExercises);
     }
     if (
       key === "sets" &&
@@ -156,7 +134,7 @@ export const EditWorkout: React.FC<{
         const newExercises = exercises.map((z) =>
           z.id === exerciseId ? { ...newExercise } : z,
         );
-        setExercises(newExercises);
+        handleEditExercises(newExercises);
       }
     }
   };
@@ -187,7 +165,7 @@ export const EditWorkout: React.FC<{
       const newExercises = exercises.map((z) =>
         z.id === exerciseId ? { ...newExercise } : z,
       );
-      setExercises(newExercises);
+      handleEditExercises(newExercises);
     }
   };
 
