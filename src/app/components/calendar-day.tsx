@@ -46,8 +46,8 @@ export const CalendarDay: React.FC<{
       className={clsx(
         "flex flex-col items-center border-b-[1px] border-r-[1px] border-card p-3",
         emptyDays + index === 6 ? "rounded-tr-lg" : "",
-        isCondensed && "cursor-pointer text-sm",
-        isCondensed && isSelected && "bg-primary-500/70",
+        isCondensed && "cursor-pointer p-1 text-sm",
+        isCondensed && isSelected && "bg-primary-400/30",
         isCondensed && !isSelected && " hover:bg-dark-100/30",
       )}
       onClick={() => isCondensed && selectDay(day)}
@@ -70,9 +70,10 @@ export const CalendarDay: React.FC<{
                   <TooltipTrigger asChild>
                     <div
                       className={clsx(
-                        "h-3 w-3 cursor-pointer rounded-full",
+                        "cursor-pointer rounded-full",
+                        isCondensed ? "h-2 w-2" : "h-3 w-3",
                         selectedWorkout?.id === x.id
-                          ? "bg-red-300"
+                          ? "bg-white"
                           : "bg-primary-600",
                       )}
                       onClick={() => selectWorkout(day, x)}

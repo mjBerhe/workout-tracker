@@ -146,6 +146,7 @@ export const Calender: React.FC<{
     setSelectedWorkout(workout);
     setExercises(workout.exercises);
 
+    setShowAddingWorkout(false);
     setShowEditWorkout(true);
   };
 
@@ -159,6 +160,8 @@ export const Calender: React.FC<{
   };
 
   const handleEditWorkout = (key: keyof Workout, value: string) => {
+    setShowAddingWorkout(false);
+
     if (selectedWorkout) {
       const workout = selectedWorkout;
       setSelectedWorkout({ ...workout, [key]: value });
@@ -273,7 +276,7 @@ export const Calender: React.FC<{
               : "hidden opacity-0",
           )}
         >
-          {selectedWorkout && (
+          {selectedWorkout && selectedDay && (
             <EditWorkout
               userId={userId}
               closeWorkout={handleCloseWorkout}
@@ -282,6 +285,7 @@ export const Calender: React.FC<{
               handleEditWorkout={handleEditWorkout}
               selectedExercises={exercises}
               handleEditExercises={handleEditExercises}
+              refetch={refetch}
             />
           )}
         </div>

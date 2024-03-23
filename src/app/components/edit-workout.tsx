@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import dayjs from "dayjs";
 import { X, Redo, ChevronRight } from "lucide-react";
 import { Disclosure, Transition } from "@headlessui/react";
 
-import { Exercise, Workout } from "~/server/db/schema";
-import { handleCreateWorkout } from "~/app/actions";
-import { exercises } from "~/const/exercises";
-import type { NewExercise, NewSet } from "./calendar";
+import { api } from "~/trpc/react";
+import type { Exercise, Workout } from "~/server/db/schema";
 
+import { exercises } from "~/const/exercises";
+import type { NewExercise, NewSet } from "~/app/components/calendar";
 import { Input } from "~/app/components/input";
 import { Select, type Option } from "~/app/components/basic/select";
 import { ComboBox } from "~/app/components/basic/combobox";
@@ -52,11 +52,12 @@ const exerciseOptions = exercises
 export const EditWorkout: React.FC<{
   userId: string;
   closeWorkout: () => void;
-  selectedDay?: dayjs.Dayjs | null;
+  selectedDay: dayjs.Dayjs;
   selectedWorkout: Workout;
   handleEditWorkout: (key: keyof Workout, value: string) => void;
   selectedExercises: NewExercise[];
   handleEditExercises: (exercises: NewExercise[]) => void;
+  refetch: () => void;
 }> = ({
   userId,
   closeWorkout,
@@ -65,7 +66,15 @@ export const EditWorkout: React.FC<{
   handleEditWorkout,
   selectedExercises,
   handleEditExercises,
+  refetch,
 }) => {
+  const { mutate } = api.workout.editWorkout.useMutation({
+    onSuccess: () => {
+      closeWorkout();
+      refetch();
+    },
+  });
+
   const workoutName = selectedWorkout.name ?? "";
   const workoutType =
     workoutTypeOptions.find((x) => x.name === selectedWorkout.type) ??
@@ -172,6 +181,28 @@ export const EditWorkout: React.FC<{
   // when submitting edit workout
   const editWorkout = async () => {
     console.log("editing");
+    mutate({
+      userId: userId,
+      workoutId: selectedWorkout.id,
+      name: workoutName,
+      time: timeOfDay?.name,
+      type: workoutType?.name,
+      duration: duration?.name,
+      date: new Date(selectedDay.toDate()),
+      exercises: [
+        ...exercises.map((ex) => ({
+          ...ex,
+          sets: [
+            ...ex.sets.map((set, i) => ({
+              ...set,
+              setNumber: i,
+              weightAmount: set.weightAmount.toString(),
+              repAmount: set.repAmount.toString(),
+            })),
+          ],
+        })),
+      ],
+    });
   };
 
   // const createWorkout = async () => {

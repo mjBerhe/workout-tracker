@@ -31,6 +31,70 @@ export const workoutRouter = createTRPCRouter({
       return { workouts: allWorkouts };
     }),
 
+  editWorkout: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        workoutId: z.number(),
+        name: z.string(), // Leg Day 1
+        time: z.string().optional(), // Afternoon
+        type: z.string().optional(), // Strength Training
+        duration: z.string().optional(),
+        specificName: z.string().optional().nullable(),
+        notes: z.string().optional().nullable(),
+        date: z.date(),
+        exercises: z.array(
+          z.object({
+            name: z.string(),
+            sets: z.array(
+              z.object({
+                setNumber: z.number(),
+                weightAmount: z.string(),
+                weightUnit: z.string(),
+                repAmount: z.string(),
+              }),
+            ),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { userId, workoutId, name, time, type, duration, exercises, date } =
+        input;
+      const workout = await db.query.workouts.findFirst({
+        where: eq(workouts.id, workoutId),
+      });
+      if (workout) {
+        const editedWorkout = await db
+          .update(workouts)
+          .set({ name, time, type, duration })
+          .where(eq(workouts.id, workoutId));
+
+        const test = exercises.map(async (exercise) => {
+          const newExercise = await db
+            .insert(exerciseTable)
+            .values({
+              workoutId: workoutId.toString(), // I think workoutId should always be a number??
+              name: exercise.name,
+              date: date,
+            })
+            .onDuplicateKeyUpdate({ set: { name: exercise.name } });
+          // HERE
+          const exerciseId = newExercise.insertId;
+          const sets = exercise.sets.map((x) => ({
+            exerciseId,
+            setNumber: x.setNumber,
+            weightAmount: parseInt(x.weightAmount),
+            repAmount: parseInt(x.repAmount),
+            weightUnit: x.weightUnit,
+          }));
+          const newSets = await db.insert(setTable).values([...sets]);
+        });
+
+        return { status: "success" };
+      }
+    }),
+
   createWorkout: protectedProcedure
     .input(
       z.object({
