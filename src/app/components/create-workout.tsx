@@ -179,6 +179,20 @@ export const CreateWorkout: React.FC<{
     }
   };
 
+  const duplicateSet = (exerciseId: number, setId?: number) => {
+    const exercise = exercises.find((x) => x.id === exerciseId);
+    if (exercise) {
+      const setIndex = exercise.sets.findIndex((set) => set.id === setId);
+      const newSetInfo = [
+        ...exercise.sets.splice(setIndex, 0, {
+          id: dayjs().valueOf(),
+          ...newSetTemplate,
+        }),
+      ];
+      console.log(newSetInfo);
+    }
+  };
+
   const createWorkout = () => {
     selectedDay &&
       mutate({
@@ -277,6 +291,7 @@ export const CreateWorkout: React.FC<{
               removeExercise={removeExercise}
               updateExercise={updateExercise}
               addOrRemoveSet={addOrRemoveSet}
+              duplicateSet={duplicateSet}
             />
           </div>
         ))}
@@ -321,12 +336,14 @@ export const NewExercise: React.FC<{
     type: "add" | "remove",
     setId?: number,
   ) => void;
+  duplicateSet: (exerciseId: number, setId?: number) => void;
 }> = ({
   exercise,
   exerciseOptions,
   removeExercise,
   updateExercise,
   addOrRemoveSet,
+  duplicateSet,
 }) => {
   const { id, name, sets } = exercise;
 
@@ -431,6 +448,12 @@ export const NewExercise: React.FC<{
                           }
                         />
                         <span className="text-sm">reps</span>
+                      </div>
+
+                      <div>
+                        <Button onClick={() => duplicateSet(id, set.id)}>
+                          Dupe
+                        </Button>
                       </div>
 
                       <div className="ml-auto flex">
